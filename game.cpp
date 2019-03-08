@@ -1,7 +1,11 @@
-#include "game.h"
 #include <fstream>
+#include <SFML/Graphics.hpp>
+#include <iostream>
 
-RenderWindow window(VideoMode(1280,720),"Jeszcze nie wiem",Style::Fullscreen);
+#include "game.h"
+
+sf::Vector2i screenDimensions(1280,720);
+sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Jeszcze nie wiem",Style::Fullscreen);
 
 /*
     window.setMouseCursorVisible(false);
@@ -46,6 +50,8 @@ void Game::ErrorMsg(string error, string title)
 
 void Game::runGame()
 {
+    window.setFramerateLimit(60);
+
 	while(state != END)
 	{
 		switch (state)
@@ -54,6 +60,7 @@ void Game::runGame()
 			menu();
 			break;
 		case GAME:
+		    mainGame();
 			break;
 		}
 	}
@@ -107,11 +114,16 @@ void Game::menu()
 			{
 				state = END;
 			}
+			else if(tekst[0].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				state = GAME;
+			}
 		}
 		for(int i=0;i<ile;i++)
 			if(tekst[i].getGlobalBounds().contains(mouse))
-				tekst[i].setColor(Color::Cyan); // when you will move your mouse on button
-			else tekst[i].setColor(Color::White);
+				tekst[i].setColor(sf::Color::Cyan); // when you will move your mouse on button
+			else tekst[i].setColor(sf::Color::White);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
@@ -127,7 +139,7 @@ void Game::menu()
 	}
 }
 
-/*void Game::l1()
+void Game::mainGame()
 {
     Text title(Title,font,50);
 	title.setStyle(Text::Bold);
@@ -144,49 +156,58 @@ void Game::menu()
 
 	sf::Sprite cursor(cursorTexture);
 
-	sf::Texture bg_tex;
-    if (!bg_tex.loadFromFile("Resources/Textures/floor.png"))
-		ErrorMsg("Some Resources not found! Check: 'Resources/Textures/floor.png'","ERROR");
-
-    sf::Sprite background(bg_tex);
-
-    sf::Texture leverOFFtexture, leverONtexture;
-    if (!leverOFFtexture.loadFromFile("Resources/Textures/leverOFF.png"))
-        ErrorMsg("Some Resources not found! Check: 'Resources/Textures/leverOFF.png'","ERROR");
-
-    if (!leverONtexture.loadFromFile("Resources/Textures/leverON.png"))
-        ErrorMsg("Some Resources not found! Check: 'Resources/Textures/leverON.png'","ERROR");
-
-    sf::Sprite leverOFF(leverOFFtexture), leverOFF2(leverOFFtexture);
-    sf::Sprite leverON(leverONtexture), leverON2(leverONtexture);
-
-    leverOFF.setPosition(50,50);
-    leverON.setPosition(50,50);
-
-    leverOFF2.setPosition(250,150);
-    leverON2.setPosition(250,150);
-
-    sf::Texture tex_door_closed, tex_door_opened;
-    if (!tex_door_closed.loadFromFile("Resources/Game/door_closed.png"))
-        ErrorMsg("Some Resources not found! Check: 'Resources/Game/door_closed.png'","ERROR");
-    if (!tex_door_opened.loadFromFile("Resources/Game/door_opened.png"))
-        ErrorMsg("Some Resources not found! Check: 'Resources/Game/door_opened.png'","ERROR");
-
-    sf::Sprite door_op(tex_door_opened), door_cl(tex_door_closed);
-
-    door_op.setPosition(320,160);
-    door_cl.setPosition(320,160);
-
-    bool leverstage1 = 0;
-    bool leverstage2 = 0;
-    bool first_door = 0;
-
-    //auto pos = sf::Mouse::getPosition(window);
-    //TODO: Odtwarzac dzwiek dxwigni
+    sf::Texture playerTexture;
+    if (!playerTexture.loadFromFile("Resources/Game/player.png"))
+        ErrorMsg("Nie znaleziono, lub nie udalo sie wczytac tekstury postaci. Sprawdz czy posiadasz: 'Resources/Game/player.png'","ERROR");
 
     fstream file;
     string file_name = "Resources/Game/Levels/Level_1.LEVEL";
     file.open(file_name.c_str(), ios::in);
+
+    Animation walkingAnimationDown;
+    walkingAnimationDown.setSpriteSheet(playerTexture);
+    walkingAnimationDown.addFrame(sf::IntRect(32, 0, 32, 32));
+    walkingAnimationDown.addFrame(sf::IntRect(64, 0, 32, 32));
+    walkingAnimationDown.addFrame(sf::IntRect(32, 0, 32, 32));
+    walkingAnimationDown.addFrame(sf::IntRect( 0, 0, 32, 32));
+
+    Animation walkingAnimationLeft;
+    walkingAnimationLeft.setSpriteSheet(playerTexture);
+    walkingAnimationLeft.addFrame(sf::IntRect(32, 32, 32, 32));
+    walkingAnimationLeft.addFrame(sf::IntRect(64, 32, 32, 32));
+    walkingAnimationLeft.addFrame(sf::IntRect(32, 32, 32, 32));
+    walkingAnimationLeft.addFrame(sf::IntRect( 0, 32, 32, 32));
+
+    Animation walkingAnimationRight;
+    walkingAnimationRight.setSpriteSheet(playerTexture);
+    walkingAnimationRight.addFrame(sf::IntRect(32, 64, 32, 32));
+    walkingAnimationRight.addFrame(sf::IntRect(64, 64, 32, 32));
+    walkingAnimationRight.addFrame(sf::IntRect(32, 64, 32, 32));
+    walkingAnimationRight.addFrame(sf::IntRect( 0, 64, 32, 32));
+
+    Animation walkingAnimationUp;
+    walkingAnimationUp.setSpriteSheet(playerTexture);
+    walkingAnimationUp.addFrame(sf::IntRect(32, 96, 32, 32));
+    walkingAnimationUp.addFrame(sf::IntRect(64, 96, 32, 32));
+    walkingAnimationUp.addFrame(sf::IntRect(32, 96, 32, 32));
+    walkingAnimationUp.addFrame(sf::IntRect( 0, 96, 32, 32));
+
+    Animation* currentAnimation = &walkingAnimationDown;
+
+    AnimatedSprite animatedSprite(sf::seconds(0.2), true, false);
+    animatedSprite.setPosition(sf::Vector2f(screenDimensions / 2));
+
+    sf::Clock frameClock;
+
+    float speed = 80.f;
+    float speedtemp = speed;
+    float run = 200.f;
+    bool noKeyWasPressed = true;
+
+    Gracz player(Gracz(sf::Vector2f(25,25)));
+
+    Object blok; // Generacja ustawien domyslnych objektu
+    blok.editObject(sf::Vector2f(100,100),sf::Vector2f(100,50),sf::Color::Blue,sf::Color::Green,0); // edycja stworzonego wczesniej objektu
 
     if(file.good())
     {
@@ -204,8 +225,10 @@ void Game::menu()
         if (!map.load("Resources/Game/Tileset_1.png", sf::Vector2u(40, 40), level, 32, 18))
             ErrorMsg("Map not found! Check: 'Resources/Game/Tileset_1.png'","ERROR");
 
-        while(state == L1)
+        while(state == GAME)
         {
+            player.rect.setPosition(animatedSprite.getPosition().x+4, animatedSprite.getPosition().y+4);
+
             Vector2f mouse(Mouse::getPosition());
             Event event;
 
@@ -214,67 +237,74 @@ void Game::menu()
                 //Wciœniêcie ESC lub przycisk X
                 if(event.type == Event::Closed || event.type == Event::KeyPressed &&
                     event.key.code == Keyboard::Escape)
-                    state = SELECT;
-                if(leverOFF2.getGlobalBounds().contains(sf::Mouse::getPosition(window).x,sf::Mouse::getPosition(window).y && event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Left)
-                   || leverON2.getGlobalBounds().contains(sf::Mouse::getPosition(window).x,sf::Mouse::getPosition(window).y) && event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Left)
-                {
-                    if (leverstage2 == 0)
-                        leverstage2 = 1;
-                    else
-                        leverstage2 = 0;
-                }
-                if(leverOFF.getGlobalBounds().contains(sf::Mouse::getPosition(window).x,sf::Mouse::getPosition(window).y && event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Left)
-                   || leverON.getGlobalBounds().contains(sf::Mouse::getPosition(window).x,sf::Mouse::getPosition(window).y) && event.type == sf::Event::MouseButtonPressed && event.key.code == sf::Mouse::Left)
-                {
-                    if (leverstage1 == 0)
-                        leverstage1 = 1;
-                    else
-                        leverstage1 = 0;
-                }
+                    state = MENU;
             }
+
+            sf::Time frameTime = frameClock.restart();
+
+            // if a key was pressed set the correct animation and move correctly
+            sf::Vector2f movement(0.f, 0.f);
+
+            player.Collision(blok, movement, speed);
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+                speed = run;
+            else    speed = speedtemp;
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+            {
+                currentAnimation = &walkingAnimationUp;
+                noKeyWasPressed = false;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+            {
+                currentAnimation = &walkingAnimationDown;
+                noKeyWasPressed = false;
+            }
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+            {
+                currentAnimation = &walkingAnimationLeft;
+                noKeyWasPressed = false;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+            {
+                currentAnimation = &walkingAnimationRight;
+                noKeyWasPressed = false;
+            }
+            animatedSprite.play(*currentAnimation);
+            animatedSprite.move(movement * frameTime.asSeconds());
+
+            // if no key was pressed stop the animation
+            if (noKeyWasPressed)
+            {
+                animatedSprite.stop();
+            }
+            noKeyWasPressed = true;
+
+            // update AnimatedSprite
+            animatedSprite.update(frameTime);
+            blok.Update();
+            player.Update();
 
             cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)));
 
-            window.clear();
+            window.clear(sf::Color(100,100,100,255));
 
-            window.draw(background);
             window.draw(map);
             window.draw(title);
 
-            if (leverstage1 == 0)
-            {
-                window.draw(leverOFF);
-                first_door = 0;
-            }
-            else if (leverstage1 == 1)
-                window.draw(leverON);
-
-            if (leverstage1 == 1)
-            {
-                if (leverstage2 == 0)
-                {
-                    window.draw(leverOFF2);
-                    first_door = 0;
-                }
-                else if (leverstage2 == 1)
-                {
-                    window.draw(leverON2);
-                    first_door = 1;
-                }
-            }
-
-            if (first_door == 1)
-                window.draw(door_op);
-            else
-                window.draw(door_cl);
+            window.draw(blok.rect);
+            //window.draw(player.rect);
+            window.draw(animatedSprite);
 
             window.setView(fixed);
             window.draw(cursor);
+
             window.display();
-	}
-	file.close();
+        }
+        file.close();
     }
     else
         ErrorMsg("Map not found! Check: 'Resources/Game/Levels/Level_1.LEVEL'","ERROR");
 }
-*/
+

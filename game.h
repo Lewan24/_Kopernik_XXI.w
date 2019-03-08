@@ -4,6 +4,13 @@
 #include <SFML/Graphics.hpp>
 #include <Windows.h>
 #include <string>
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Transformable.hpp>
+#include <SFML/System/Vector2.hpp>
+
+#include "Animation.hpp"
 //#include <SFML/Network.hpp>
 //#include <SFML/Audio.hpp>
 //#include <SFML/System.hpp>
@@ -22,29 +29,77 @@ public:
 	void ErrorMsg(string, string);
 
 protected:
-	enum GameState {MENU,GAME,GAMEOVER,END};
+	enum GameState {MENU,GAME,END};
 	GameState state;
 
 private:
 	Font font;
     const string Title = "Jeszcze nie wiem";
 	void menu();
+	void mainGame();
 };
 
-class Gracz
+class AnimatedSprite : public sf::Drawable, public sf::Transformable
 {
+public:
+    //explicit AnimatedSprite(sf::Time frameTime = sf::seconds(0.2f), bool paused = false, bool looped = true);
+    explicit AnimatedSprite(sf::Time frameTime = sf::seconds(0.2f), bool paused = false, bool looped = true);
+
+    void update(sf::Time deltaTime);
+    void setAnimation(const Animation& animation);
+    void setFrameTime(sf::Time time);
+    void play();
+    void play(const Animation& animation);
+    void pause();
+    void stop();
+    void setLooped(bool looped);
+    void setColor(const sf::Color& color);
+    const Animation* getAnimation() const;
+    sf::FloatRect getLocalBounds() const;
+    sf::FloatRect getGlobalBounds() const;
+    bool isLooped() const;
+    bool isPlaying() const;
+    sf::Time getFrameTime() const;
+    void setFrame(std::size_t newFrame, bool resetTime = true);
+private:
+    const Animation* m_animation;
+    sf::Time m_frameTime;
+    sf::Time m_currentTime;
+    std::size_t m_currentFrame;
+    bool m_isPaused;
+    bool m_isLooped;
+    const sf::Texture* m_texture;
+    sf::Vertex m_vertices[4];
+
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+};
+
+class Object
+{
+    friend class Gracz;
     public:
 
     sf::RectangleShape rect;
     float bottom, left, right, top;
 
-    Gracz(sf::Vector2f position, sf::Vector2f size, sf::Color c1, sf::Color c2, int thi)
+    // konstruktor
+    Object()
     {
-        rect.setPosition(position);
+        rect.setPosition(sf::Vector2f(200,200));
+        rect.setSize(sf::Vector2f(50,50));
+        rect.setFillColor(sf::Color::Red);
+        rect.setOutlineColor(sf::Color::White);
+        rect.setOutlineThickness(2);
+    }
+
+    // funckcja edycji obiektu
+    void editObject(sf::Vector2f position, sf::Vector2f size, sf::Color fillColor, sf::Color outLineColor, int thickness)
+    {
+        rect.setPosition(sf::Vector2f(position));
         rect.setSize(size);
-        rect.setFillColor(c1);
-        rect.setOutlineColor(c2);
-        rect.setOutlineThickness(thi);
+        rect.setFillColor(fillColor);
+        rect.setOutlineColor(outLineColor);
+        rect.setOutlineThickness(thickness);
     }
 
     void Update()
@@ -54,18 +109,65 @@ class Gracz
         right = rect.getPosition().x + rect.getSize().x;
         top = rect.getPosition().y;
     }
-
-    bool Collision(Gracz p)
-    {
-        if (right < p.left || left > p.right ||
-            top > p.bottom || bottom < p.top)
-        {
-            return false;
-        }
-        return true;
-    }
 };
 
+class Gracz
+{
+    public:
+    //bool kolizja = false;
+
+    sf::RectangleShape rect;
+    float bottom, left, right, top;
+
+    Gracz(sf::Vector2f size)
+    {
+        rect.setSize(size);
+    }
+
+    void Collision(Object p, sf::Vector2f &movement, float &speed)
+    {
+        float temp = 500.f;
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+            if (rect.getGlobalBounds().intersects(p.rect.getGlobalBounds()))
+                movement.y += speed + temp;
+            else
+                movement.y -= speed;
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+            if (rect.getGlobalBounds().intersects(p.rect.getGlobalBounds()))
+                movement.y -= speed + temp;
+            else
+                movement.y += speed;
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+            if (rect.getGlobalBounds().intersects(p.rect.getGlobalBounds()))
+                movement.x += speed + temp;
+            else
+                movement.x -= speed;
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+            if (rect.getGlobalBounds().intersects(p.rect.getGlobalBounds()))
+                movement.x -= speed + temp;
+            else
+                movement.x += speed;
+    }
+
+    /*bool isCoolided()   {
+        if (kolizja == true)
+            return true;
+        else
+            return false;
+    }*/
+
+    void Update()
+    {
+        bottom = rect.getPosition().y + rect.getSize().y;
+        left = rect.getPosition().x;
+        right = rect.getPosition().x + rect.getSize().x;
+        top = rect.getPosition().y;
+    }
+};
 
 class TileMap : public sf::Drawable, public sf::Transformable
 {

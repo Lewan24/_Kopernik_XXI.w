@@ -1,12 +1,20 @@
 # depslib dependency file v1.0
-1551813342 source:c:\users\artur\_kopernik_xxi.w\game.cpp
-	"game.h"
+1552064174 source:c:\users\artur\_kopernik_xxi.w\game.cpp
 	<fstream>
+	<SFML/Graphics.hpp>
+	<iostream>
+	"game.h"
 
-1551812895 c:\users\artur\_kopernik_xxi.w\game.h
+1552064306 c:\users\artur\_kopernik_xxi.w\game.h
 	<SFML/Graphics.hpp>
 	<Windows.h>
 	<string>
+	<SFML/Graphics/RenderTarget.hpp>
+	<SFML/System/Time.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<SFML/Graphics/Transformable.hpp>
+	<SFML/System/Vector2.hpp>
+	"Animation.hpp"
 
 1527323159 d:\sfml-2.5.0\include\sfml\graphics.hpp
 	<SFML/Window.hpp>
@@ -427,4 +435,30 @@
 	"resource.h"
 
 1551813121 c:\users\artur\_kopernik_xxi.w\resource.h
+
+1552061509 source:c:\users\artur\_kopernik_xxi.w\animatedsprite.cpp
+	"game.h"
+
+1552060505 c:\users\artur\_kopernik_xxi.w\animatedsprite.hpp
+	<SFML/Graphics/RenderTarget.hpp>
+	<SFML/System/Time.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<SFML/Graphics/Transformable.hpp>
+	<SFML/System/Vector2.hpp>
+	<SFML/Graphics.hpp>
+	<iostream>
+	"Animation.hpp"
+
+1551816675 c:\users\artur\_kopernik_xxi.w\animation.hpp
+	<vector>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/Graphics/Texture.hpp>
+
+1551816675 source:c:\users\artur\_kopernik_xxi.w\animation.cpp
+	"Animation.hpp"
+
+1552060829 source:c:\users\artur\_kopernik_xxi.w\mainzanimacji.cpp
+	<SFML/Graphics.hpp>
+	"AnimatedSprite.hpp"
+	<iostream>
 
