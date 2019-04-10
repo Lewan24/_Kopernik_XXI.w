@@ -527,7 +527,7 @@
 
 1551816721 c:\users\artur\desktop\kopernikuspz\resource.h
 
-1554920991 source:c:\users\artur\_kopernik_xxi.w\game.cpp
+1554931000 source:c:\users\artur\_kopernik_xxi.w\game.cpp
 	<fstream>
 	<SFML/Graphics.hpp>
 	<iostream>
@@ -542,7 +542,7 @@
 1554322019 source:c:\users\artur\_kopernik_xxi.w\main.cpp
 	"game.h"
 
-1554921307 source:c:\users\artur\_kopernik_xxi.w\resource.rc
+1554931080 source:c:\users\artur\_kopernik_xxi.w\resource.rc
 	<windows.h>
 	<commctrl.h>
 	<richedit.h>

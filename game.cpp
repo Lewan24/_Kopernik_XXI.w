@@ -67,7 +67,15 @@ void Game::runGame()
 		case GAMESTART:
 		    startgame();
 			break;
-			// TODO: Zrobic Dodatki
+			/* TODO: Zrobic Dodatki
+			wprowadzic opcje,
+			mozliwosc zmienienia pooziomu trudnosci
+			tutorial?
+			opis gry
+			podziekowania
+			credits
+			opis Kopernika i jego osiagniec // w dodatkach bedzie jakas dluzsza wersja troche o nim opowiadajaca
+			*/
 		}
 	}
 }
@@ -109,12 +117,12 @@ void Game::menu()
 
 		while(window.pollEvent(event))
 		{
-			//Wciœniêcie ESC lub przycisk X
+			//WciÅ“niÃªcie ESC lub przycisk X
 			if(event.type == Event::Closed || event.type == Event::KeyPressed &&
 				event.key.code == Keyboard::Escape)
 				state = END;
 
-			//klikniêcie EXIT
+			//klikniÃªcie EXIT
 			else if(tekst[2].getGlobalBounds().contains(mouse) &&
 				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
 			{
@@ -150,13 +158,11 @@ struct point
 
 void Game::startgame()
 {
-     //  TODO: Zwiekszyc pole gry do wiekszego rozmiaru
+    // TODO: Stworzyc 3 cutscenek:
+    // TODO: Cutscenka 1: na poczatku przygody, krotkie wprowadzenie, i zapowiedz gry
+    // TODO: cutscena 2: w okolo polowie rozgrywki, przedstawic jakies badanie kopernika, moze opowiedziec krotkie jakas ciekawostke
+    // TODO: cutscena 3: na koncu rozgrywki, podsumowanie, podziekowania, opis dokonan kopernika, napisy koncowe
      //  TODO: Dodaj widownie rzucajaca tabliczki (przeszkoda)
-     /*  TODO: Zaladowac tlo gry zmieniajace sie w czasie wraz z iloscia przeskoczonych
-           przeszkod...*/
-     /*	TODO: Zmienic tekstury blokow na wlasne
-            Zmienic teksture gracza z doodle na kopernika etc.
-     */
 
     window.setMouseCursorVisible(false);
 
@@ -169,6 +175,8 @@ void Game::startgame()
 
     srand(time(0));
 
+    // TODO: zmienic tlo gry
+
     Texture t1,t2,t3,t4;
     t1.loadFromFile("Resources/Textures/background.png");
     t2.loadFromFile("Resources/Textures/platform.png");
@@ -178,7 +186,7 @@ void Game::startgame()
     sf::Sprite sBackground(t1), sPlat(t2);
     sf::Sprite sPers(t3);
 
-    sBackground.setPosition(200,0);
+    sBackground.setPosition(200,-4572);
 
     point plat[20];
 
@@ -188,7 +196,7 @@ void Game::startgame()
        plat[i].y=rand()%600;
     }
 
-    int x=szerokosc/2, y=wysokosc/2, h=wysokosc/2;
+    int x=szerokosc/2, y=10, h=wysokosc/2;
     float dx=0,dy=0;
 
 
@@ -200,7 +208,7 @@ void Game::startgame()
 
         while(window.pollEvent(event))
         {
-            //Wciœniêcie ESC lub przycisk X
+            //WciÅ“niÃªcie ESC lub przycisk X
             if(event.type == Event::Closed || event.type == Event::KeyPressed &&
                 event.key.code == Keyboard::Escape)
                 state = MENU;
@@ -209,13 +217,19 @@ void Game::startgame()
         dy+=0.2;
         y+=dy;
 
+        std::cout << "dy = " << dy << "      Player x: " << x << ", y: " << y << endl;
+
+        // TODO: Stworzyc licznik zyc np: 3
+        //   po spadnieciu tepa dosc wysoko + zmneijsza ilosc zyc o 1
+        //   po straceniu wszystkich zyc gracz przegrywa
+
         if (y>600)  {
-            dy=-10;
+            //dy=-10;
             state = MENU;
             //TODO: Zrobic efekt Game over etc
         }
 
-        //if (dy == 0.2) sBackground.move(0,5);
+        if (dy > 0 && dy < 1) sBackground.move(0,5); // TODO: DostosowaÄ‡ predkosc przewijania tla
 
         if (y<h)
             for (int i=0;i<10;i++)
