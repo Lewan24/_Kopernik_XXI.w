@@ -23,8 +23,8 @@ A                  ICON           "Resources/Game/icon.ico"
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 1 VERSIONINFO
-    FILEVERSION     1,0,4
-    PRODUCTVERSION  1,0
+    FILEVERSION     1,0,9
+    PRODUCTVERSION  1,1
     FILEOS          VOS_UNKNOWN
     FILETYPE        VFT_APP
     FILESUBTYPE     VFT2_UNKNOWN
@@ -36,14 +36,14 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
         BLOCK "041504E4"
         {
             VALUE "CompanyName", "Uncle_BOB_Games"
-            VALUE "FileVersion", "1.0.4"
-            VALUE "FileDescription", "Kopenik i XXI wiek"
+            VALUE "FileVersion", "1.0.9"
+            VALUE "FileDescription", "Legendarna historia o Plaskiej Ziemi i naszym Mikolaju Koperniku"
             VALUE "InternalName", ""
             VALUE "LegalCopyright", "Artur Lewandowski"
             VALUE "LegalTrademarks", ""
-            VALUE "OriginalFilename", "_Kopernik_w_XXI"
+            VALUE "OriginalFilename", "KopernikusPZ"
             VALUE "ProductName", "Knowledge"
-            VALUE "ProductVersion", "1.0"
+            VALUE "ProductVersion", "1.1"
         }
     }
     BLOCK "VarFileInfo"

@@ -1,11 +1,16 @@
 #include <fstream>
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <time.h>
 
 #include "game.h"
 
-sf::Vector2i screenDimensions(1280,720);
-sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Jeszcze nie wiem",Style::Fullscreen);
+using namespace sf;
+
+short wysokosc = 600, szerokosc = 800;
+
+sf::Vector2i screenDimensions(szerokosc,wysokosc);
+sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Kopernik i Plaska Ziemia",Style::Close);
 
 /*
     window.setMouseCursorVisible(false);
@@ -28,8 +33,8 @@ Game::Game(void)
 {
 	state = END;
 
-	if(!font.loadFromFile("Resources/Fonts/kop.otf")) { //TODO:Znalezc jakas fajna czcionke
-        ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/kop.otf'","ERROR");
+	if(!font.loadFromFile("Resources/Fonts/ziemia.otf")) {
+        ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/ziemia.otf'","ERROR");
         return;
     }
 
@@ -59,25 +64,26 @@ void Game::runGame()
 		case MENU:
 			menu();
 			break;
-		case GAME:
-		    mainGame();
+		case GAMESTART:
+		    startgame();
 			break;
+			// TODO: Zrobic Dodatki
 		}
 	}
 }
 
 void Game::menu()
 {
-	Text title(Title,font,80);
+	Text title(Title,font,70);
 	title.setStyle(Text::Bold);
 
-	title.setPosition(1280/2-title.getGlobalBounds().width/2,20);
+	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
 //////////////////////////////////////////////////////////////////////////////
     window.setMouseCursorVisible(false);
 
 	sf::View fixed = window.getView();
 	sf::Texture cursorTexture;
-	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor//TODO: zmienic error boxa
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
 		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
 
 	sf::Sprite cursor(cursorTexture);
@@ -90,15 +96,15 @@ void Game::menu()
 	for(int i=0;i<ile;i++)
 	{
 		tekst[i].setFont(font);
-		tekst[i].setCharacterSize(65);              // Main Menu, texts and buttons
+		tekst[i].setCharacterSize(60);              // Main Menu, texts and buttons
 
 		tekst[i].setString(str[i]);
-		tekst[i].setPosition(1280/2-tekst[i].getGlobalBounds().width/2,250+i*120);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,250+i*120);
 	}
 ///////////////////////////////////////////////////////////////////////////////////
 	while(state == MENU)
 	{
-		Vector2f mouse(Mouse::getPosition());
+		Vector2f mouse(Mouse::getPosition(window));
 		Event event;
 
 		while(window.pollEvent(event))
@@ -117,7 +123,7 @@ void Game::menu()
 			else if(tekst[0].getGlobalBounds().contains(mouse) &&
 				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
 			{
-				state = GAME;
+				state = GAMESTART;
 			}
 		}
 		for(int i=0;i<ile;i++)
@@ -139,13 +145,18 @@ void Game::menu()
 	}
 }
 
-void Game::mainGame()
+struct point
+{ int x,y;};
+
+void Game::startgame()
 {
-    Text title(Title,font,50);
-	title.setStyle(Text::Bold);
-    title.setOutlineColor(sf::Color::Blue);
-    title.setOutlineThickness(2);
-	title.setPosition(1280/2-title.getGlobalBounds().width/2,20);
+     //  TODO: Zwiekszyc pole gry do wiekszego rozmiaru
+     //  TODO: Dodaj widownie rzucajaca tabliczki (przeszkoda)
+     /*  TODO: Zaladowac tlo gry zmieniajace sie w czasie wraz z iloscia przeskoczonych
+           przeszkod...*/
+     /*	TODO: Zmienic tekstury blokow na wlasne
+            Zmienic teksture gracza z doodle na kopernika etc.
+     */
 
     window.setMouseCursorVisible(false);
 
@@ -156,155 +167,111 @@ void Game::mainGame()
 
 	sf::Sprite cursor(cursorTexture);
 
-    sf::Texture playerTexture;
-    if (!playerTexture.loadFromFile("Resources/Game/player.png"))
-        ErrorMsg("Nie znaleziono, lub nie udalo sie wczytac tekstury postaci. Sprawdz czy posiadasz: 'Resources/Game/player.png'","ERROR");
+    srand(time(0));
 
-    fstream file;
-    string file_name = "Resources/Game/Levels/Level_1.LEVEL";
-    file.open(file_name.c_str(), ios::in);
+    Texture t1,t2,t3,t4;
+    t1.loadFromFile("Resources/Textures/background.png");
+    t2.loadFromFile("Resources/Textures/platform.png");
+    t3.loadFromFile("Resources/Textures/doodle.png");
+    t4.loadFromFile("Resources/Textures/doodle2.png");
 
-    Animation walkingAnimationDown;
-    walkingAnimationDown.setSpriteSheet(playerTexture);
-    walkingAnimationDown.addFrame(sf::IntRect(32, 0, 32, 32));
-    walkingAnimationDown.addFrame(sf::IntRect(64, 0, 32, 32));
-    walkingAnimationDown.addFrame(sf::IntRect(32, 0, 32, 32));
-    walkingAnimationDown.addFrame(sf::IntRect( 0, 0, 32, 32));
+    sf::Sprite sBackground(t1), sPlat(t2);
+    sf::Sprite sPers(t3);
 
-    Animation walkingAnimationLeft;
-    walkingAnimationLeft.setSpriteSheet(playerTexture);
-    walkingAnimationLeft.addFrame(sf::IntRect(32, 32, 32, 32));
-    walkingAnimationLeft.addFrame(sf::IntRect(64, 32, 32, 32));
-    walkingAnimationLeft.addFrame(sf::IntRect(32, 32, 32, 32));
-    walkingAnimationLeft.addFrame(sf::IntRect( 0, 32, 32, 32));
+    sBackground.setPosition(200,0);
 
-    Animation walkingAnimationRight;
-    walkingAnimationRight.setSpriteSheet(playerTexture);
-    walkingAnimationRight.addFrame(sf::IntRect(32, 64, 32, 32));
-    walkingAnimationRight.addFrame(sf::IntRect(64, 64, 32, 32));
-    walkingAnimationRight.addFrame(sf::IntRect(32, 64, 32, 32));
-    walkingAnimationRight.addFrame(sf::IntRect( 0, 64, 32, 32));
+    point plat[20];
 
-    Animation walkingAnimationUp;
-    walkingAnimationUp.setSpriteSheet(playerTexture);
-    walkingAnimationUp.addFrame(sf::IntRect(32, 96, 32, 32));
-    walkingAnimationUp.addFrame(sf::IntRect(64, 96, 32, 32));
-    walkingAnimationUp.addFrame(sf::IntRect(32, 96, 32, 32));
-    walkingAnimationUp.addFrame(sf::IntRect( 0, 96, 32, 32));
-
-    Animation* currentAnimation = &walkingAnimationDown;
-
-    AnimatedSprite animatedSprite(sf::seconds(0.2), true, false);
-    animatedSprite.setPosition(sf::Vector2f(screenDimensions / 2));
-
-    sf::Clock frameClock;
-
-    float speed = 80.f;
-    float speedtemp = speed;
-    float run = 200.f;
-    bool noKeyWasPressed = true;
-
-    Gracz player(Gracz(sf::Vector2f(25,25)));
-
-    Object blok; // Generacja ustawien domyslnych objektu
-    blok.editObject(sf::Vector2f(100,100),sf::Vector2f(100,50),sf::Color::Blue,sf::Color::Green,0); // edycja stworzonego wczesniej objektu
-
-    if(file.good())
+    for (int i=0;i<10;i++)
     {
-        int i = 0;
-        string line;
-        int level[576];
-
-        while (getline(file, line, ' '))
-        {
-            level[i] = atoi(line.c_str());
-            i++;
-        }
-
-        TileMap map;
-        if (!map.load("Resources/Game/Tileset_1.png", sf::Vector2u(40, 40), level, 32, 18))
-            ErrorMsg("Map not found! Check: 'Resources/Game/Tileset_1.png'","ERROR");
-
-        while(state == GAME)
-        {
-            player.rect.setPosition(animatedSprite.getPosition().x+4, animatedSprite.getPosition().y+4);
-
-            Vector2f mouse(Mouse::getPosition());
-            Event event;
-
-            while(window.pollEvent(event))
-            {
-                //Wciœniêcie ESC lub przycisk X
-                if(event.type == Event::Closed || event.type == Event::KeyPressed &&
-                    event.key.code == Keyboard::Escape)
-                    state = MENU;
-            }
-
-            sf::Time frameTime = frameClock.restart();
-
-            // if a key was pressed set the correct animation and move correctly
-            sf::Vector2f movement(0.f, 0.f);
-
-            player.Collision(blok, movement, speed);
-
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
-                speed = run;
-            else    speed = speedtemp;
-
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-            {
-                currentAnimation = &walkingAnimationUp;
-                noKeyWasPressed = false;
-            }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-            {
-                currentAnimation = &walkingAnimationDown;
-                noKeyWasPressed = false;
-            }
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-            {
-                currentAnimation = &walkingAnimationLeft;
-                noKeyWasPressed = false;
-            }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-            {
-                currentAnimation = &walkingAnimationRight;
-                noKeyWasPressed = false;
-            }
-            animatedSprite.play(*currentAnimation);
-            animatedSprite.move(movement * frameTime.asSeconds());
-
-            // if no key was pressed stop the animation
-            if (noKeyWasPressed)
-            {
-                animatedSprite.stop();
-            }
-            noKeyWasPressed = true;
-
-            // update AnimatedSprite
-            animatedSprite.update(frameTime);
-            blok.Update();
-            player.Update();
-
-            cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)));
-
-            window.clear(sf::Color(100,100,100,255));
-
-            window.draw(map);
-            window.draw(title);
-
-            window.draw(blok.rect);
-            //window.draw(player.rect);
-            window.draw(animatedSprite);
-
-            window.setView(fixed);
-            window.draw(cursor);
-
-            window.display();
-        }
-        file.close();
+       plat[i].x=rand()%400+200;
+       plat[i].y=rand()%600;
     }
-    else
-        ErrorMsg("Map not found! Check: 'Resources/Game/Levels/Level_1.LEVEL'","ERROR");
+
+    int x=szerokosc/2, y=wysokosc/2, h=wysokosc/2;
+    float dx=0,dy=0;
+
+
+    while(state == GAMESTART)
+    {
+        Vector2f mouse(Mouse::getPosition());
+
+        Event event;
+
+        while(window.pollEvent(event))
+        {
+            //Wciœniêcie ESC lub przycisk X
+            if(event.type == Event::Closed || event.type == Event::KeyPressed &&
+                event.key.code == Keyboard::Escape)
+                state = MENU;
+        }
+
+        dy+=0.2;
+        y+=dy;
+
+        if (y>600)  {
+            dy=-10;
+            state = MENU;
+            //TODO: Zrobic efekt Game over etc
+        }
+
+        //if (dy == 0.2) sBackground.move(0,5);
+
+        if (y<h)
+            for (int i=0;i<10;i++)
+            {
+                y=h;
+                plat[i].y = plat[i].y-dy;
+                if (plat[i].y>580)
+                {
+                    plat[i].y=0;
+                    plat[i].x=rand()%400+200;
+                }
+            }
+
+        for (int i=0;i<10;i++)
+        if ((x+50>plat[i].x) && (x+20<plat[i].x+68)
+        && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dy>0))  dy=-10;
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
+            x-=3;
+            sPers.setTexture(t3);
+
+            if (sPers.getPosition().x < (150)){
+                //x = x + sPers.getScale().x + szerokosc;
+                x = x + sPers.getScale().x + 400;
+            }
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
+            x+=3;
+            sPers.setTexture(t4);
+
+            if (sPers.getPosition().x > 580){
+                //x = x + sPers.getScale().x + szerokosc;
+                x = 200;
+            }
+        }
+
+        sPers.setPosition(x,y);
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)));
+
+        window.clear();
+
+        window.draw(sBackground);
+
+        for (int i=0;i<10;i++)
+        {
+            sPlat.setPosition(plat[i].x,plat[i].y);
+            window.draw(sPlat);
+        }
+
+        window.draw(sPers);
+
+        window.setView(fixed);
+        window.draw(cursor);
+
+        window.display();
+    }
 }
 

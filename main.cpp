@@ -8,7 +8,7 @@ int main()
     return 0;
 }
 
-/**     _Kopernik_XXI_Wiek :D
+/**     Title: Kopernik i Plaska Ziemia
   *     Author: Artur Lewandowski
   *     Developer: Artur Lewandowksi
   *     Programmer: Artur Lewandowski
