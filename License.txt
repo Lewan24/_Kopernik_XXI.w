@@ -1,0 +1,46 @@
+			      MindFu**er_Game
+			     Copyright © 2019.
+			    All rights reserved.
+
+***********	INSTALUJ¥C T¥ APLIKACJÊ PRZYJMUJESZ DO 
+		    WIADOMOŒCI WSZYSTKIE PONI¯SZE 
+			   POSTANOWIENIA. 				***************
+
+1.		AUTOR PROGRAMU NIE ODPOWIADA ZA JEGO 
+	B£ÊDNE DZIA£ANIE, NIE UDZIELA ¯ADNYCH GWARANCJI, OBIETNIC, 
+	ANI ZAPEWNIEÑ NA OWE OPROGRAMOWANIE!
+
+2.		AUTOR NIE BIERZE NA SIEBIE JAKICHKOLWIEK 
+	REKLAMACJI NA TEMAT B£ÊDNEGO DZIA£ANIA PROGRAMU. 
+	REKLAMACJE, OWSZEM, ZOSTAN¥ 
+	ROZPATRZONE, JEDNAK NIE MA GWARANCJI 
+	NA ICH ROZWI¥ZANIE.
+
+3.		TWÓRCA APLIKACJI UPRZEJMIE INFORMUJE, I¯ 
+	ZOSTA£A ONA NAPISANA WY£¥CZNIE JAKO HOBBY ORAZ W CELU 
+	POG£ÊBIANIA SWOJEJ WIEDZY ZWI¥ZANEJ Z 
+	PROGRAMOWANIEM.
+
+4.		MindFu**er_Game jest rozprowadzany na zasadzie FREEWARE. 
+	Oznacza to, ¿e dostajesz go za darmo i mo¿esz u¿ywaæ 
+	w dowolnej iloœci kopii ca³kowicie bez ograniczeñ!
+	Mo¿e on byæ wykorzystywany zarówno w celach 
+	domowych, jak i komercyjnych. Zabrania siê:
+ 		- dekompilacji, 
+ 		- deasemblacji, 
+ 		- odtwarzania kodu Ÿród³owego,
+ 		- tworzenia oprogramowania opartego na niniejszym 
+		  programie. 
+
+5.		Nie wolno równie¿ rozprowadzaæ tego programu w 
+	celach zarobkowych. 
+	Stosownym by³oby tak¿e przed jego publikacj¹ w 
+	dowolnym miejscu poinformowanie mnie o danych fakcie.
+
+///////////////////////////////////////////////////////////////////////////////////////
+				Kontakt:
+
+	 Steam:    https://steamcommunity.com/id/wujek_bob/
+	 GitHub:   https://github.com/Lewan24
+	 Mail: 	    LewanMordor@protonmail.com
+	    lub     lewandowskiartur2@gmail.com
