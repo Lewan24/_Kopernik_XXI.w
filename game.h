@@ -26,7 +26,7 @@ protected:
 
 private:
 	sf::Font font;
-    const string Title = "Kopernik i Plaska Ziemia";
+    string Title = "Kopernik i Plaska Ziemia";
 	void menu();
 	void startgame();
 };

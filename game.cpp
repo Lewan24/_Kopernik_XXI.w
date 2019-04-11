@@ -70,6 +70,9 @@ void Game::runGame()
 			/* TODO: Zrobic Dodatki
 			wprowadzic opcje,
 			mozliwosc zmienienia pooziomu trudnosci
+			mozliwosc wylaczenia zderzen z tabliczkami
+			mozliwosc zmiany predkosci i wysokosci skoku
+			wraz z zmniejszeniem trudnosci trzeba powiekszyc ilosc zyc
 			tutorial?
 			opis gry
 			podziekowania
@@ -175,8 +178,6 @@ void Game::startgame()
 
     srand(time(0));
 
-    // TODO: zmienic tlo gry
-
     Texture t1,t2,t3,t4;
     t1.loadFromFile("Resources/Textures/background.png");
     t2.loadFromFile("Resources/Textures/platform.png");
@@ -197,11 +198,41 @@ void Game::startgame()
     }
 
     int x=szerokosc/2, y=10, h=wysokosc/2;
-    float dx=0,dy=0;
+    float dy=0;
 
+    //bool isSpacePressed;
+
+    short iloscZyc = 3; // ustalam ilosc zyc
+
+    sf::Font font2;
+    font2.loadFromFile("Resources/Fonts/lives.ttf");
+
+    const short ile = iloscZyc+1;
+    //sf::Text zycia0("Lives: 0",font,30), zycia1("Lives: 1",font,30), zycia2("Lives: 2",font,30), zycia3("Lives: 3",font,30);
+    sf::Text zycia[ile];
+
+
+    const short ile2 = 11; // ustalam wieklosc tablicy; zawsze ma byc o 1 wieksza od max liczby w tablicy
+    string zyciastr[ile2] = {"0","1","2","3","4","5","6","7","8","9","10"}; // max 10 zyc
+    //string str[] = {"Lives: 0", "Lives: 1", "Lives: 2", "Lives: 3"};
+    string str[ile2];
+
+    for(int i = 0; i < ile2; i++){ // dla kazdego stringa przypisuje odpowiednia wartosc
+        str[i] = "Lives: " + zyciastr[i];
+    }
+
+    for (int i = 0; i < ile; i++){ // dla kazdego stringa ustawiam kolor, wielkosc itd
+        zycia[i].setFont(font2);
+        zycia[i].setPosition(210,0);
+        zycia[i].setCharacterSize(20);
+        zycia[i].setString(str[i]);
+        zycia[i].setColor(sf::Color::Red);
+    }
 
     while(state == GAMESTART)
     {
+        //isSpacePressed = false;
+
         Vector2f mouse(Mouse::getPosition());
 
         Event event;
@@ -217,19 +248,19 @@ void Game::startgame()
         dy+=0.2;
         y+=dy;
 
-        std::cout << "dy = " << dy << "      Player x: " << x << ", y: " << y << endl;
-
-        // TODO: Stworzyc licznik zyc np: 3
-        //   po spadnieciu tepa dosc wysoko + zmneijsza ilosc zyc o 1
-        //   po straceniu wszystkich zyc gracz przegrywa
+        std::cout << "Pozostalo zyc: " << iloscZyc << "      Player x: " << x << ", y: " << y << endl;
 
         if (y>600)  {
             //dy=-10;
-            state = MENU;
-            //TODO: Zrobic efekt Game over etc
+            if (iloscZyc <= 0)
+                state = MENU;   //TODO: Zrobic efekt Game over etc
+            else{
+                iloscZyc -= 1;
+                dy=-15;
+            }
         }
 
-        if (dy > 0 && dy < 1) sBackground.move(0,5); // TODO: Dostosować predkosc przewijania tla
+        if (dy > 0 && dy < 1) sBackground.move(0,5);
 
         if (y<h)
             for (int i=0;i<10;i++)
@@ -243,11 +274,7 @@ void Game::startgame()
                 }
             }
 
-        for (int i=0;i<10;i++)
-        if ((x+50>plat[i].x) && (x+20<plat[i].x+68)
-        && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dy>0))  dy=-10;
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
             x-=3;
             sPers.setTexture(t3);
 
@@ -256,7 +283,7 @@ void Game::startgame()
                 x = x + sPers.getScale().x + 400;
             }
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
             x+=3;
             sPers.setTexture(t4);
 
@@ -264,6 +291,22 @@ void Game::startgame()
                 //x = x + sPers.getScale().x + szerokosc;
                 x = 200;
             }
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
+            dy+=0.8;
+
+            for (int i=0;i<10;i++)
+                if ((x+50>plat[i].x) && (x+20<plat[i].x+68)
+                && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dy>0))  dy=-15;
+
+            if (dy > 0 && dy < 1) sBackground.move(0,-5);
+
+            //isSpacePressed = true;
+        }
+        else{
+            for (int i=0;i<10;i++)
+                if ((x+50>plat[i].x) && (x+20<plat[i].x+68)
+                && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dy>0))   dy=-10;
         }
 
         sPers.setPosition(x,y);
@@ -281,6 +324,8 @@ void Game::startgame()
         }
 
         window.draw(sPers);
+
+        window.draw(zycia[iloscZyc]);
 
         window.setView(fixed);
         window.draw(cursor);
