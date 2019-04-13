@@ -527,14 +527,14 @@
 
 1551816721 c:\users\artur\desktop\kopernikuspz\resource.h
 
-1554989124 source:c:\users\artur\_kopernik_xxi.w\game.cpp
+1555178889 source:c:\users\artur\_kopernik_xxi.w\game.cpp
 	<fstream>
 	<SFML/Graphics.hpp>
 	<iostream>
 	<time.h>
 	"game.h"
 
-1554989124 c:\users\artur\_kopernik_xxi.w\game.h
+1555178340 c:\users\artur\_kopernik_xxi.w\game.h
 	<SFML/Graphics.hpp>
 	<Windows.h>
 	<string>
@@ -542,7 +542,7 @@
 1554322019 source:c:\users\artur\_kopernik_xxi.w\main.cpp
 	"game.h"
 
-1554982078 source:c:\users\artur\_kopernik_xxi.w\resource.rc
+1555182658 source:c:\users\artur\_kopernik_xxi.w\resource.rc
 	<windows.h>
 	<commctrl.h>
 	<richedit.h>

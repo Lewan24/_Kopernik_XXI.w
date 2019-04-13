@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2014 Artur Lewandowski (aka. Uncle Bob) (LewanMordor@protonmail.com)
+// Copyright (C) 2018 Artur Lewandowski (aka. Uncle Bob) (LewanMordor@protonmail.com)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -41,10 +41,11 @@ public:
 	~Game(void);    // destruktor
 
 	void runGame();
+	void console();
 	void ErrorMsg(string, string);
 
 protected:
-	enum GameState {MENU,GAMESTART,END};
+	enum GameState {MENU,GAMESTART,END,GAMEOVER};
 	GameState state;
 
 private:
@@ -52,6 +53,7 @@ private:
     string Title = "Kopernik i Plaska Ziemia";
 	void menu();
 	void startgame();
+	void gameOver();
 };
 
 #endif // game_h

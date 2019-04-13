@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2014 Artur Lewandowski (aka. Uncle Bob) (LewanMordor@protonmail.com)
+// Copyright (C) 2018 Artur Lewandowski (aka. Uncle Bob) (LewanMordor@protonmail.com)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -90,6 +90,9 @@ void Game::runGame()
 		case GAMESTART:
 		    startgame();
 			break;
+        case GAMEOVER:
+            gameOver();
+            break;
 			/* TODO: Zrobic Dodatki
 			wprowadzic opcje,
 			mozliwosc zmienienia pooziomu trudnosci
@@ -202,15 +205,33 @@ void Game::startgame()
     srand(time(0));
 
     Texture t1,t2,t3,t4;
-    t1.loadFromFile("Resources/Textures/background.png");
-    t2.loadFromFile("Resources/Textures/platform.png");
-    t3.loadFromFile("Resources/Textures/doodle.png");
-    t4.loadFromFile("Resources/Textures/doodle2.png");
+    if (!t1.loadFromFile("Resources/Textures/background.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/background.png'","ERROR");
+    if (!t2.loadFromFile("Resources/Textures/platform.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/platform.png'","ERROR");
+    if (!t3.loadFromFile("Resources/Textures/doodle.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/doodle.png'","ERROR");
+    if (!t4.loadFromFile("Resources/Textures/doodle2.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/doodle2.png'","ERROR");
 
     sf::Sprite sBackground(t1), sPlat(t2);
     sf::Sprite sPers(t3);
 
     sBackground.setPosition(200,-4572);
+
+    sf::Texture audience1, audience2;
+
+    if (!audience1.loadFromFile("Resources/Textures/audience.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/audience.png'","ERROR");
+    if (!audience2.loadFromFile("Resources/Textures/audience2.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/audience2.png'","ERROR");
+
+    sf::Sprite audienceleft, audienceright;
+
+    audienceleft.setTexture(audience1);
+    audienceright.setTexture(audience2);
+    audienceleft.setPosition(0,0);
+    audienceright.setPosition(600,0);
 
     point plat[20];
 
@@ -225,10 +246,12 @@ void Game::startgame()
 
     //bool isSpacePressed;
 
-    short iloscZyc = 3; // ustalam ilosc zyc
+    short iloscZyc = 4;
+    //short *wsk = &iloscZyc; // TODO: zrobic konsole z komenda dodawania zyc
 
     sf::Font font2;
-    font2.loadFromFile("Resources/Fonts/lives.ttf");
+    if (!font2.loadFromFile("Resources/Fonts/lives.ttf"))
+        ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/lives.ttf'","ERROR");
 
     const short ile = iloscZyc+1;
     //sf::Text zycia0("Lives: 0",font,30), zycia1("Lives: 1",font,30), zycia2("Lives: 2",font,30), zycia3("Lives: 3",font,30);
@@ -252,6 +275,15 @@ void Game::startgame()
         zycia[i].setColor(sf::Color::Red);
     }
 
+    /*  TODO: Tabliczki
+     *  prezent z ciekawostka o koperniku
+     *  wyniki koncowe
+     *  licznik wyniku
+     *  tlo do gameover
+     *  napis gameover + moze jakis efekt napisu
+     *      napis ma byc nad opcjami do wyboru / zmniejszyc rozmiar opcji
+     */
+
     while(state == GAMESTART)
     {
         //isSpacePressed = false;
@@ -266,24 +298,27 @@ void Game::startgame()
             if(event.type == Event::Closed || event.type == Event::KeyPressed &&
                 event.key.code == Keyboard::Escape)
                 state = MENU;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+
         }
 
         dy+=0.2;
         y+=dy;
 
-        std::cout << "Pozostalo zyc: " << iloscZyc << "      Player x: " << x << ", y: " << y << endl;
+        //std::cout << "dy: " << dy << "      Player x: " << x << ", y: " << y << endl;
 
         if (y>600)  {
             //dy=-10;
             if (iloscZyc <= 0)
-                state = MENU;   //TODO: Zrobic efekt Game over etc
+                state = GAMEOVER;   //state = MENU;   //TODO: Zrobic efekt Game over etc
             else{
                 iloscZyc -= 1;
                 dy=-15;
             }
         }
 
-        if (dy > 0 && dy < 1) sBackground.move(0,5);
+        if (dy > -10 && dy < 0) sBackground.move(0,1); // plynne przechodzenie mapy
 
         if (y<h)
             for (int i=0;i<10;i++)
@@ -316,7 +351,7 @@ void Game::startgame()
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
-            dy+=0.8;
+            dy+=1;
 
             for (int i=0;i<10;i++)
                 if ((x+50>plat[i].x) && (x+20<plat[i].x+68)
@@ -344,11 +379,14 @@ void Game::startgame()
         {
             sPlat.setPosition(plat[i].x,plat[i].y);
             window.draw(sPlat);
-        }
+        }window.draw(audienceleft);
 
         window.draw(sPers);
 
         window.draw(zycia[iloscZyc]);
+
+        window.draw(audienceleft);
+        window.draw(audienceright);
 
         window.setView(fixed);
         window.draw(cursor);
@@ -357,3 +395,136 @@ void Game::startgame()
     }
 }
 
+void Game::gameOver()
+{
+
+    // TODO: Koncowy wynik (wyswietlic uzytkownikowi i dopisac do pliku txt)
+    // state == GAMEOVER
+    Text title(Title,font,40);
+	title.setStyle(Text::Bold);
+
+	title.setPosition(szerokosc/3-title.getGlobalBounds().width/2,20);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+/////////////////////////////////////////////////////////////////////////////
+	const int ile = 3;
+
+	Text tekst[ile];
+
+	string str[] = {"Kontynuuj","Wyniki","Zamknij"};
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(60);              // Main Menu, texts and buttons
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,250+i*120);
+	}
+///////////////////////////////////////////////////////////////////////////////////
+	while(state == GAMEOVER)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed)
+                state = END;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+				state = MENU;
+
+			//klikniêcie EXIT
+			else if(tekst[2].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				state = END;
+			}
+			else if(tekst[0].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				state = MENU;
+			}
+		}
+		for(int i=0;i<ile;i++)
+			if(tekst[i].getGlobalBounds().contains(mouse))
+				tekst[i].setColor(sf::Color::Cyan); // when you will move your mouse on button
+			else tekst[i].setColor(sf::Color::White);
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+		window.clear();
+
+		window.draw(title);
+		for(int i=0;i<ile;i++)
+			window.draw(tekst[i]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
+}
+
+using namespace std;
+
+void help()
+{
+    cout << "=================================================" << endl;
+    cout << "                  Komendy: " << endl << endl;
+
+    cout << "menu - przejscie do menu gry" << endl;
+    cout << "startgame - przejscie do glownej gry" << endl;
+    cout << "end - zamyka aplikacje" << endl;
+    cout << "exit - wyjscie z konsoli" << endl;
+    cout << "gameover - przejscie do okna gameover" << endl;
+    cout << "help - wyswietlenie wszystkich komend" << endl;
+    cout << "=================================================" << endl;
+}
+
+void Game::console()
+{
+    string command;
+
+    komenda:
+    cout << endl;
+    cout << "Aktualnie: ";
+
+    if (state == GAMESTART)
+        cout << "GRA" << endl;
+    else if (state == MENU)
+        cout << "MENU" << endl;
+    else if (state == GAMEOVER)
+        cout << "GAMEOVER" << endl;
+    else
+        cout << "Pozycja Nie Znana" << endl;
+
+    cout << ">";
+    cin >> command;
+
+    if (command == "menu")
+        state = MENU;
+    else if (command == "startgame")
+        state = GAMESTART;
+    else if (command == "end")
+        state = END;
+    //else if (command == "addlive")
+        //*lives += 2;
+    else if (command == "gameover")
+        state = GAMEOVER;
+    else if (command == "exit")
+        return;
+    else if (command == "help")
+        help();
+    else{
+        cout << "Zla komenda sprobuj jeszcze raz...";
+        goto komenda;
+    }
+    goto komenda;
+}

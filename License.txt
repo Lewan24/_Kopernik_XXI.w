@@ -1,4 +1,4 @@
-			      MindFu**er_Game
+			      KopernikusPZ
 			     Copyright © 2019.
 			    All rights reserved.
 
@@ -21,7 +21,7 @@
 	POG£ÊBIANIA SWOJEJ WIEDZY ZWI¥ZANEJ Z 
 	PROGRAMOWANIEM.
 
-4.		MindFu**er_Game jest rozprowadzany na zasadzie FREEWARE. 
+4.		KopernikusPZ jest rozprowadzany na zasadzie FREEWARE. 
 	Oznacza to, ¿e dostajesz go za darmo i mo¿esz u¿ywaæ 
 	w dowolnej iloœci kopii ca³kowicie bez ograniczeñ!
 	Mo¿e on byæ wykorzystywany zarówno w celach 
@@ -43,4 +43,3 @@
 	 Steam:    https://steamcommunity.com/id/wujek_bob/
 	 GitHub:   https://github.com/Lewan24
 	 Mail: 	    LewanMordor@protonmail.com
-	    lub     lewandowskiartur2@gmail.com

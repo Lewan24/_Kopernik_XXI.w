@@ -1,0 +1,39 @@
+1.1.3.0
+-Add Console (/ to run)
+-Add more textures
+-Add Audience
+-Modify Background
+
+1.1.2.0
+-Add Optional PL License
+-Add in source License
+
+1.1.1.0
+-Add new movement button
+-Add Lives
+-Change some textures
+
+1.0.9.0
+-Add Player texture
+-Add Background
+-Modify all files
+
+1.0.7.0
+-Modify all game
+-Too much to say
+
+1.0.4.0
+-Add Player
+-Add Animations
+-Add Collision
+-Add Map
+-Add Bugh to fix later
+
+1.0.1.0
+-First Steps
+-Add Font
+-Add Cursor
+-Add main menu etc
+
+1.0.0.0
+-Nothing special :D
