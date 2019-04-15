@@ -45,15 +45,21 @@ public:
 	void ErrorMsg(string, string);
 
 protected:
-	enum GameState {MENU,GAMESTART,END,GAMEOVER};
+	enum GameState {MENU,GAMESTART,END,GAMEOVER,CUT1,CUT2,MENUOPTIONS};
 	GameState state;
 
 private:
-	sf::Font font;
+	sf::Font font, // main
+            font2, // lives
+            font3; // text
     string Title = "Kopernik i Plaska Ziemia";
+    string Skip = "Space, aby pominac";
 	void menu();
+	void options();
 	void startgame();
 	void gameOver();
+	void cut1(); // cut scena nr 1
+	void cut2();
 };
 
 #endif // game_h

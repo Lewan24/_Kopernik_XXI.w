@@ -25,6 +25,8 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <time.h>
+#include <string>
+#include <windows.h>
 
 #include "game.h"
 
@@ -56,8 +58,16 @@ Game::Game(void)
 {
 	state = END;
 
-	if(!font.loadFromFile("Resources/Fonts/ziemia.otf")) {
-        ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/ziemia.otf'","ERROR");
+	if(!font.loadFromFile("Resources/Fonts/main.otf")) {
+        ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/main.otf'","ERROR");
+        return;
+    }
+    if (!font2.loadFromFile("Resources/Fonts/optional.ttf")){
+        ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/optional.ttf'","ERROR");
+        return;
+    }
+    if (!font3.loadFromFile("Resources/Fonts/text.ttf")){
+        ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/text.ttf'","ERROR");
         return;
     }
 
@@ -84,27 +94,42 @@ void Game::runGame()
 	{
 		switch (state)
 		{
-		case MENU:
-			menu();
-			break;
-		case GAMESTART:
-		    startgame();
-			break;
-        case GAMEOVER:
-            gameOver();
-            break;
-			/* TODO: Zrobic Dodatki
-			wprowadzic opcje,
-			mozliwosc zmienienia pooziomu trudnosci
-			mozliwosc wylaczenia zderzen z tabliczkami
-			mozliwosc zmiany predkosci i wysokosci skoku
-			wraz z zmniejszeniem trudnosci trzeba powiekszyc ilosc zyc
-			tutorial?
-			opis gry
-			podziekowania
-			credits
-			opis Kopernika i jego osiagniec // w dodatkach bedzie jakas dluzsza wersja troche o nim opowiadajaca
-			*/
+            case MENU:
+                menu();
+                break;
+
+            case MENUOPTIONS:
+                options();
+                break;
+
+            case GAMESTART:
+                startgame();
+                break;
+
+            case GAMEOVER:
+                gameOver();
+                break;
+
+            case CUT1:
+                cut1();
+                break;
+
+            case CUT2:
+                cut2();
+                break;
+
+            /* TODO: Zrobic Dodatki
+            wprowadzic opcje,
+            mozliwosc zmienienia pooziomu trudnosci
+            mozliwosc wylaczenia zderzen z tabliczkami
+            mozliwosc zmiany predkosci i wysokosci skoku
+            wraz z zmniejszeniem trudnosci trzeba powiekszyc ilosc zyc
+            tutorial?
+            opis gry
+            podziekowania
+            credits
+            opis Kopernika i jego osiagniec // w dodatkach bedzie jakas dluzsza wersja troche o nim opowiadajaca
+            */
 		}
 	}
 }
@@ -160,13 +185,15 @@ void Game::menu()
 			else if(tekst[0].getGlobalBounds().contains(mouse) &&
 				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
 			{
-				state = GAMESTART;
+				state = CUT1;
 			}
+			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
 		}
 		for(int i=0;i<ile;i++)
 			if(tekst[i].getGlobalBounds().contains(mouse))
-				tekst[i].setColor(sf::Color::Cyan); // when you will move your mouse on button
-			else tekst[i].setColor(sf::Color::White);
+				tekst[i].setColor(Color::Cyan); // when you will move your mouse on button
+			else tekst[i].setColor(Color::White);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
@@ -182,13 +209,18 @@ void Game::menu()
 	}
 }
 
+void Game::options()
+{
+    // TODO: Dodatki, ogolnie opcje
+    // state = MENUOPTIONS
+}
+
 struct point
 { int x,y;};
 
 void Game::startgame()
 {
     // TODO: Stworzyc 3 cutscenek:
-    // TODO: Cutscenka 1: na poczatku przygody, krotkie wprowadzenie, i zapowiedz gry
     // TODO: cutscena 2: w okolo polowie rozgrywki, przedstawic jakies badanie kopernika, moze opowiedziec krotkie jakas ciekawostke
     // TODO: cutscena 3: na koncu rozgrywki, podsumowanie, podziekowania, opis dokonan kopernika, napisy koncowe
      //  TODO: Dodaj widownie rzucajaca tabliczki (przeszkoda)
@@ -248,10 +280,6 @@ void Game::startgame()
 
     short iloscZyc = 4;
     //short *wsk = &iloscZyc; // TODO: zrobic konsole z komenda dodawania zyc
-
-    sf::Font font2;
-    if (!font2.loadFromFile("Resources/Fonts/lives.ttf"))
-        ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/lives.ttf'","ERROR");
 
     const short ile = iloscZyc+1;
     //sf::Text zycia0("Lives: 0",font,30), zycia1("Lives: 1",font,30), zycia2("Lives: 2",font,30), zycia3("Lives: 3",font,30);
@@ -452,6 +480,8 @@ void Game::gameOver()
 			{
 				state = MENU;
 			}
+			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
 		}
 		for(int i=0;i<ile;i++)
 			if(tekst[i].getGlobalBounds().contains(mouse))
@@ -463,6 +493,7 @@ void Game::gameOver()
 		window.clear();
 
 		window.draw(title);
+
 		for(int i=0;i<ile;i++)
 			window.draw(tekst[i]);
 
@@ -470,6 +501,112 @@ void Game::gameOver()
         window.draw(cursor);
 		window.display();
 	}
+}
+
+void Game::cut1(){
+    //state = CUT1
+
+    sf::Text title(Title,font,20);
+
+	title.setStyle(Text::Bold);
+
+	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,575);
+	//skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+//////////////////////////////////////////////////////////////////////////////
+    string linia;
+    int ile=0;
+    short ilosc_linii = 11; // ilosc linii - 1
+    string str[ilosc_linii];
+
+    fstream plik;
+    plik.open("Resources/Game/cutscenes/cut1.cutscene", ios::in);
+
+    if(plik.good()==false)
+        ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/cut1.cutscene'","ERROR");
+
+    while (getline(plik, linia))
+    {
+        str[ile] = linia;
+        ile++;
+    }
+    plik.close();
+
+	sf::Text tekst[ile];
+
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font3);
+		tekst[i].setCharacterSize(24);              // Main Menu, texts and buttons
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+	}
+
+	sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    int cos = 0;
+
+    //sf::Text skip(Skip,font,20);   // TODO: Sprawdzic dlaczego nie dziala tekst, przy dodaniu nowego crashuje aplikacje / naprawic blad
+    //skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+	while(state == CUT1)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed)
+                state = END;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space)
+				state = GAMESTART;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+		}
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        //std::cout << cos << endl;
+
+        if (czas.asSeconds() > 1.5){
+            cos++;
+            if (cos > ilosc_linii)
+                cos = cos-1;
+
+            zegar.restart();
+        }
+        czas=zegar.getElapsedTime();
+
+		window.clear();
+
+		window.draw(title);
+		//window.draw(skip);
+
+        for (int i = 0; i < cos+1; i++)
+            window.draw(tekst[i]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
+}
+
+void Game::cut2(){
+    // state = CUT2
+
 }
 
 using namespace std;
@@ -485,7 +622,11 @@ void help()
     cout << "exit - wyjscie z konsoli" << endl;
     cout << "gameover - przejscie do okna gameover" << endl;
     cout << "help - wyswietlenie wszystkich komend" << endl;
+    cout << "cutscene1 - przejscie do cutsceny nr 1" << endl;
+    cout << "cutscene2 - przejscie do cutsceny nr 2" << endl;
+    cout << "options - przejscie do menu opcji" << endl;
     cout << "=================================================" << endl;
+    // cout << "" << endl;
 }
 
 void Game::console()
@@ -522,6 +663,12 @@ void Game::console()
         return;
     else if (command == "help")
         help();
+    else if (command == "cutscene1")
+        state = CUT1;
+    else if (command == "cutscene2")
+        state = CUT2;
+    else if (command == "options")
+        state = MENUOPTIONS;
     else{
         cout << "Zla komenda sprobuj jeszcze raz...";
         goto komenda;
