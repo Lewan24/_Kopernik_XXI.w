@@ -182,6 +182,11 @@ void Game::menu()
 			{
 				state = END;
 			}
+			else if(tekst[1].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				state = MENUOPTIONS;
+			}
 			else if(tekst[0].getGlobalBounds().contains(mouse) &&
 				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
 			{
@@ -211,8 +216,105 @@ void Game::menu()
 
 void Game::options()
 {
-    // TODO: Dodatki, ogolnie opcje
     // state = MENUOPTIONS
+
+    Text title(Title,font,40);
+	title.setStyle(Text::Bold);
+
+	title.setPosition(szerokosc/4-title.getGlobalBounds().width/2,20);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+/////////////////////////////////////////////////////////////////////////////
+	const int ile = 3;
+
+	Text tekst[ile];
+
+	string str[] = {"Poziom Trudnosci: ","Podziekowania","<--"};
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(50);              // Main Menu, texts and buttons
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc/4-tekst[i].getGlobalBounds().width/2,250+i*60);
+	}
+///////////////////////////////////////////////////////////////////////////////////
+    short trudnosc = 0;
+
+    const short trudnosci = 5;
+    sf::Text poziomy[trudnosci];
+
+    string strudnosc[trudnosci] = {"Easy", "Normal", "Hard", "Serious", "Mental"};
+
+    // TODO: Zrobic aby poziomy zmienialy np. ilosc zyc lub/i ??? predkosc przewijania tla
+    // TODO: Zrobic Podziekowania, jakies przewijane tlo, milion nie znaczacych napisow jakie losowe logo etc
+    // TODO: Opcje maja zapisywac sie i odczytywac z pliku configuracyjnego w plikach gry
+    // TODO: Domyslne opcje lub/i przycisk resetu opcji do stanu fabrycznego
+
+    for (int i = 0; i < trudnosci; i++){
+        poziomy[i].setFont(font);
+        poziomy[i].setPosition(szerokosc/2-poziomy[i].getGlobalBounds().width/2,250);
+        poziomy[i].setCharacterSize(50);
+        poziomy[i].setString(strudnosc[i]);
+    }
+
+	while(state == MENUOPTIONS)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed)
+				state = END;
+
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+                state = MENU;
+			//klikniêcie EXIT
+			else if(tekst[2].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				state = MENU;
+			}
+			else if(tekst[0].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				trudnosc++;
+			}
+			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+		}
+		for(int i=0;i<ile;i++)
+			if(tekst[i].getGlobalBounds().contains(mouse))
+				tekst[i].setColor(Color::Cyan); // when you will move your mouse on button
+			else tekst[i].setColor(Color::White);
+
+        if (trudnosc >= trudnosci)
+            trudnosc = 0;
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+		window.clear();
+
+		window.draw(title);
+
+		for(int i=0;i<ile;i++)
+			window.draw(tekst[i]);
+
+        window.draw(poziomy[trudnosc]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
 }
 
 struct point
@@ -507,7 +609,6 @@ void Game::cut1(){
     //state = CUT1
 
     sf::Text title(Title,font,20);
-
 	title.setStyle(Text::Bold);
 
 	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,575);
