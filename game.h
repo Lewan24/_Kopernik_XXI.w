@@ -27,6 +27,7 @@
 #include <SFML/Graphics.hpp>
 #include <Windows.h>
 #include <string>
+#include <iostream>
 //#include <SFML/Network.hpp>
 //#include <SFML/Audio.hpp>
 //#include <SFML/System.hpp>
@@ -41,25 +42,37 @@ public:
 	~Game(void);    // destruktor
 
 	void runGame();
+	void gameUpdate(bool);
+	void help();
 	void console();
+	void optionsReset();
 	void ErrorMsg(string, string);
 
 protected:
-	enum GameState {MENU,GAMESTART,END,GAMEOVER,CUT1,CUT2,MENUOPTIONS};
+	enum GameState {MENU,GAMESTART,END,GAMEOVER,CUT1,CUT2,CUT3,CUT4,MENUOPTIONS,HINTS,GREETINGS};
 	GameState state;
 
 private:
+    bool zycia = false;
+    int backgroundY = -4572;
+    short iloscZyc = 4;
+    short trudnosc = 0;
 	sf::Font font, // main
             font2, // lives
             font3; // text
     string Title = "Kopernik i Plaska Ziemia";
     string Skip = "Space, aby pominac";
+    //string Wyjscie = "Escape, aby wrocic";
 	void menu();
+	void greetings();
+	void hints();
 	void options();
-	void startgame();
-	void gameOver();
 	void cut1(); // cut scena nr 1
 	void cut2();
+	void cut3();
+	void cut4();
+	void gameOver();
+	void startgame();
 };
 
 #endif // game_h

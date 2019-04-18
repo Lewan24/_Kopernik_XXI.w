@@ -1,3 +1,12 @@
+1.2.0.0
+-A lot of Stuff
+-Cutscenes number 2,3,4
+-Greetings
+-GameOver menu
+-Modify Console
+-Add more Textures
+-Fixed some Bugs
+
 1.1.5.0
 -Intro
 -Cutscene

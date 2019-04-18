@@ -53,6 +53,12 @@ sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "
     window.setView(fixed);
     window.draw(cursor);
 */
+//TODO: Znalezc jakies ciemne nie razace w oczy tla do menu etc / lub zostawic czarno bialy design
+
+// TODO: Wyniki moga byc liczone od sekund przebytych w grze, od ilosci przeskokow pomiedzy prawa a lewa krawedzia
+// gry, ilosc wysokich skokow np. po spacji, poziom trudnosci im ciezszy tym wiecej punktow sie dostaje
+// szybkosc dojscia do konca gry, ilosc zebranych ciekawostek o koperniku
+// TODO: Stworzyc przed ostatnia cutscenka tablice z koncowym wynikiem itd;
 
 Game::Game(void)
 {
@@ -87,7 +93,7 @@ void Game::ErrorMsg(string error, string title)
 }
 
 void Game::runGame()
-{
+{   // TODO: Dodac sciezke dzwiekowa
     window.setFramerateLimit(60);
 
 	while(state != END)
@@ -118,19 +124,110 @@ void Game::runGame()
                 cut2();
                 break;
 
+            case CUT3:
+                cut3();
+                break;
+
+            case CUT4:
+                cut4();
+                break;
+
+            case GREETINGS:
+                greetings();
+                break;
+
+            case HINTS:
+                hints();
+                break;
+
             /* TODO: Zrobic Dodatki
-            wprowadzic opcje,
-            mozliwosc zmienienia pooziomu trudnosci
             mozliwosc wylaczenia zderzen z tabliczkami
-            mozliwosc zmiany predkosci i wysokosci skoku
-            wraz z zmniejszeniem trudnosci trzeba powiekszyc ilosc zyc
             tutorial?
             opis gry
-            podziekowania
-            credits
             opis Kopernika i jego osiagniec // w dodatkach bedzie jakas dluzsza wersja troche o nim opowiadajaca
             */
 		}
+	}
+}
+
+void Game::greetings()
+{
+    // state = GREETINGS
+
+    Text title(Title,font,40);
+	title.setStyle(Text::Bold);
+
+	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+/////////////////////////////////////////////////////////////////////////////
+
+    sf::Text skip(Skip,font,20);
+    skip.setPosition(szerokosc-skip.getGlobalBounds().width-15,wysokosc-skip.getGlobalBounds().height-20);
+
+    Texture t1;
+    if (!t1.loadFromFile("Resources/Textures/greetings.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/greetings.png'","ERROR");
+
+    sf::Sprite Background(t1);
+
+    Background.setPosition(200, 600);
+
+    sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+	while(state == GREETINGS)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed)
+				state = END;
+
+			//klikniêcie SPACE
+			else if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space)
+			{
+				state = MENU;
+			}
+			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+		}
+
+        //std::cout << Background.getPosition().y << std::endl;
+
+        if (Background.getPosition().y < -1500)
+            state = MENU;
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        if (czas.asMilliseconds() > 10){
+            Background.move(0,-1);
+            zegar.restart();
+        }
+        czas=zegar.getElapsedTime();
+
+		window.clear();
+
+        window.draw(Background);
+
+		window.draw(title);
+		window.draw(skip);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
 	}
 }
 
@@ -150,11 +247,11 @@ void Game::menu()
 
 	sf::Sprite cursor(cursorTexture);
 /////////////////////////////////////////////////////////////////////////////
-	const int ile = 3;
+	const int ile = 4;
 
 	Text tekst[ile];
 
-	string str[] = {"Rozpocznij","Dodatki","Zamknij"};
+	string str[] = {"Rozpocznij","Dodatki","Zamknij","Porady"};
 	for(int i=0;i<ile;i++)
 	{
 		tekst[i].setFont(font);
@@ -164,6 +261,8 @@ void Game::menu()
 		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,250+i*120);
 	}
 ///////////////////////////////////////////////////////////////////////////////////
+    tekst[3].setPosition(5,wysokosc-tekst[3].getGlobalBounds().height-15);
+
 	while(state == MENU)
 	{
 		Vector2f mouse(Mouse::getPosition(window));
@@ -192,6 +291,11 @@ void Game::menu()
 			{
 				state = CUT1;
 			}
+			else if(tekst[3].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				state = HINTS;
+			}
 			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
 		}
@@ -213,6 +317,88 @@ void Game::menu()
 		window.display();
 	}
 }
+
+void Game::hints()
+{
+    // TODO: 2-4 zdjecia z poradami do gry, moze jakies screeny z gry, najlepiej zrobione w PhotoShop'ie
+    // state = HINTS
+	Text title(Title,font,40);
+	title.setStyle(Text::Bold);
+
+	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+/////////////////////////////////////////////////////////////////////////////
+	const int ile = 2;
+
+	Text tekst[ile];
+
+	string str[] = {"Kontynuuj","Wyjdz"};
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(40);              // Main Menu, texts and buttons
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc-tekst[i].getGlobalBounds().width-15,500+i*40);
+	}
+///////////////////////////////////////////////////////////////////////////////////
+
+	while(state == HINTS)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed || event.type == Event::KeyPressed &&
+				event.key.code == Keyboard::Escape)
+				state = END;
+
+			//klikniêcie EXIT
+            else if(tekst[1].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				state = END;
+			}
+			else if(tekst[0].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				state = MENU;
+			}
+
+			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+		}
+
+		for(int i=0;i<ile;i++)
+			if(tekst[i].getGlobalBounds().contains(mouse))
+				tekst[i].setColor(Color::Cyan); // when you will move your mouse on button
+			else tekst[i].setColor(Color::White);
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+		window.clear();
+
+		window.draw(title);
+
+		for(int i=0;i<ile;i++)
+			window.draw(tekst[i]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
+}
+
 
 void Game::options()
 {
@@ -232,11 +418,12 @@ void Game::options()
 
 	sf::Sprite cursor(cursorTexture);
 /////////////////////////////////////////////////////////////////////////////
-	const int ile = 3;
+	const int ile = 4;
 
 	Text tekst[ile];
 
-	string str[] = {"Poziom Trudnosci: ","Podziekowania","<--"};
+	string str[] = {"Poziom Trudnosci: ","Podziekowania","<--", "Options Reset"}; // TODO: potem dodac mozliwosc przyspieszenia gry, ale np po przejsciu gry
+                                                                                // na jakims poziomie np hard :)
 	for(int i=0;i<ile;i++)
 	{
 		tekst[i].setFont(font);
@@ -246,17 +433,12 @@ void Game::options()
 		tekst[i].setPosition(szerokosc/4-tekst[i].getGlobalBounds().width/2,250+i*60);
 	}
 ///////////////////////////////////////////////////////////////////////////////////
-    short trudnosc = 0;
-
     const short trudnosci = 5;
     sf::Text poziomy[trudnosci];
 
     string strudnosc[trudnosci] = {"Easy", "Normal", "Hard", "Serious", "Mental"};
 
-    // TODO: Zrobic aby poziomy zmienialy np. ilosc zyc lub/i ??? predkosc przewijania tla
-    // TODO: Zrobic Podziekowania, jakies przewijane tlo, milion nie znaczacych napisow jakie losowe logo etc
     // TODO: Opcje maja zapisywac sie i odczytywac z pliku configuracyjnego w plikach gry
-    // TODO: Domyslne opcje lub/i przycisk resetu opcji do stanu fabrycznego
 
     for (int i = 0; i < trudnosci; i++){
         poziomy[i].setFont(font);
@@ -265,8 +447,20 @@ void Game::options()
         poziomy[i].setString(strudnosc[i]);
     }
 
+    tekst[3].setPosition(szerokosc-tekst[3].getGlobalBounds().width-5,wysokosc-tekst[3].getGlobalBounds().height-5);
+
+    string zyciastr[6] = {"0","1","2","3","4","5"};
+
+    sf::Text ilezyc;
+    ilezyc.setFont(font2);
+    ilezyc.setCharacterSize(30);
+    ilezyc.setString("Ilosc zyc na starcie: " + zyciastr[iloscZyc]);
+    ilezyc.setPosition(15, 200);
+
 	while(state == MENUOPTIONS)
 	{
+	    gameUpdate(this->zycia);
+
 		Vector2f mouse(Mouse::getPosition(window));
 		Event event;
 
@@ -284,10 +478,20 @@ void Game::options()
 			{
 				state = MENU;
 			}
+			else if(tekst[1].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				state = GREETINGS;
+			}
 			else if(tekst[0].getGlobalBounds().contains(mouse) &&
 				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
 			{
-				trudnosc++;
+				this->trudnosc++;
+			}
+			else if(tekst[3].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			{
+				optionsReset();
 			}
 			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
@@ -297,8 +501,10 @@ void Game::options()
 				tekst[i].setColor(Color::Cyan); // when you will move your mouse on button
 			else tekst[i].setColor(Color::White);
 
-        if (trudnosc >= trudnosci)
-            trudnosc = 0;
+        if (this->trudnosc >= trudnosci)
+            this->trudnosc = 0;
+
+        ilezyc.setString("Ilosc zyc na starcie: " + zyciastr[iloscZyc]);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
@@ -310,6 +516,412 @@ void Game::options()
 			window.draw(tekst[i]);
 
         window.draw(poziomy[trudnosc]);
+        window.draw(ilezyc);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
+}
+
+void Game::cut1(){
+    //state = CUT1
+
+    sf::Text title(Title,font,20);
+	title.setStyle(Text::Bold);
+
+
+    title.setPosition(5,575);
+    //title.setPosition(200,575);
+	//title.setPosition(screenDimensions.x/2-title.getGlobalBounds().width/2,575);
+	//skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+//////////////////////////////////////////////////////////////////////////////
+    string linia;
+    int ile=0;
+    short ilosc_linii = 13; // ilosc linii - 1
+    string str[ilosc_linii];
+
+    fstream plik;
+    plik.open("Resources/Game/cutscenes/cut1.cutscene", ios::in);
+
+    if(plik.good()==false)
+        ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/cut1.cutscene'","ERROR");
+
+    while (getline(plik, linia))
+    {
+        str[ile] = linia;
+        ile++;
+    }
+    plik.close();
+
+	sf::Text tekst[ile];
+
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font3);
+		tekst[i].setCharacterSize(24);              // Main Menu, texts and buttons
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+	}
+
+	sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    int cos = 0;
+
+    sf::Text skip(Skip,font,20);
+    skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+	while(state == CUT1)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed)
+                state = END;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space)
+				state = GAMESTART;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+				state = MENU;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+		}
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        //std::cout << cos << endl;
+
+        if (czas.asSeconds() > 1.5){
+            cos++;
+            if (cos > ilosc_linii)
+                cos = cos-1;
+
+            zegar.restart();
+        }
+        czas=zegar.getElapsedTime();
+
+		window.clear();
+
+		window.draw(title);
+		window.draw(skip);
+
+        for (int i = 0; i < cos+1; i++)
+            window.draw(tekst[i]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
+}
+
+void Game::cut4(){
+    // state = CUT4
+
+    sf::Text title(Title,font,20);
+	title.setStyle(Text::Bold);
+    title.setPosition(5,575);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+//////////////////////////////////////////////////////////////////////////////
+    string linia;
+    int ile=0;
+    short ilosc_linii = 6; // ilosc linii - 1
+    string str[ilosc_linii];
+
+    fstream plik;
+    plik.open("Resources/Game/cutscenes/cut4.cutscene", ios::in);
+
+    if(plik.good()==false)
+        ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/cut4.cutscene'","ERROR");
+
+    while (getline(plik, linia))
+    {
+        str[ile] = linia;
+        ile++;
+    }
+    plik.close();
+
+	sf::Text tekst[ile];
+
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font3);
+		tekst[i].setCharacterSize(24);              // Tekst cutscenki z pliku txt
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+	}
+
+	sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    int cos = 0;
+
+    sf::Text skip(Skip,font,20);
+    skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+	while(state == CUT4)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed)
+                state = END;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
+                state = GREETINGS;
+            }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+		}
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        //std::cout << cos << endl;
+
+        if (czas.asSeconds() > 1.5){
+            cos++;
+            if (cos > ilosc_linii)
+                cos = cos-1;
+
+            zegar.restart();
+        }
+        czas=zegar.getElapsedTime();
+
+		window.clear();
+
+		window.draw(title);
+		window.draw(skip);
+
+        for (int i = 0; i < cos+1; i++)
+            window.draw(tekst[i]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
+}
+
+void Game::cut3(){
+    // state = CUT3
+
+    sf::Text title(Title,font,20);
+	title.setStyle(Text::Bold);
+    title.setPosition(5,575);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+//////////////////////////////////////////////////////////////////////////////
+    string linia;
+    int ile=0;
+    short ilosc_linii = 13; // ilosc linii - 1
+    string str[ilosc_linii];
+
+    fstream plik;
+    plik.open("Resources/Game/cutscenes/cut3.cutscene", ios::in);
+
+    if(plik.good()==false)
+        ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/cut3.cutscene'","ERROR");
+
+    while (getline(plik, linia))
+    {
+        str[ile] = linia;
+        ile++;
+    }
+    plik.close();
+
+	sf::Text tekst[ile];
+
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font3);
+		tekst[i].setCharacterSize(24);              // Tekst cutscenki z pliku txt
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+	}
+
+	sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    int cos = 0;
+
+    sf::Text skip(Skip,font,20);
+    skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+	while(state == CUT3)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed)
+                state = END;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
+                state = CUT4;
+            }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+		}
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        //std::cout << cos << endl;
+
+        if (czas.asSeconds() > 1.5){
+            cos++;
+            if (cos > ilosc_linii)
+                cos = cos-1;
+
+            zegar.restart();
+        }
+        czas=zegar.getElapsedTime();
+
+		window.clear();
+
+		window.draw(title);
+		window.draw(skip);
+
+        for (int i = 0; i < cos+1; i++)
+            window.draw(tekst[i]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
+}
+
+void Game::cut2(){
+    // state = CUT2
+
+    sf::Text title(Title,font,20);
+	title.setStyle(Text::Bold);
+    title.setPosition(5,575);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+//////////////////////////////////////////////////////////////////////////////
+    string linia;
+    int ile=0;
+    short ilosc_linii = 12; // ilosc linii - 1
+    string str[ilosc_linii];
+
+    fstream plik;
+    plik.open("Resources/Game/cutscenes/cut2.cutscene", ios::in);
+
+    if(plik.good()==false)
+        ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/cut2.cutscene'","ERROR");
+
+    while (getline(plik, linia))
+    {
+        str[ile] = linia;
+        ile++;
+    }
+    plik.close();
+
+	sf::Text tekst[ile];
+
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font3);
+		tekst[i].setCharacterSize(24);              // Tekst cutscenki z pliku txt
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+	}
+
+	sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    int cos = 0;
+
+    sf::Text skip(Skip,font,20);
+    skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+	while(state == CUT2)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed)
+                state = END;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
+                this->iloscZyc += 1;
+                this->backgroundY = -2000;
+                this->zycia = true;
+                state = GAMESTART;
+            }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+		}
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        //std::cout << cos << endl;
+
+        if (czas.asSeconds() > 1.5){
+            cos++;
+            if (cos > ilosc_linii)
+                cos = cos-1;
+
+            zegar.restart();
+        }
+        czas=zegar.getElapsedTime();
+
+		window.clear();
+
+		window.draw(title);
+		window.draw(skip);
+
+        for (int i = 0; i < cos+1; i++)
+            window.draw(tekst[i]);
 
         window.setView(fixed);
         window.draw(cursor);
@@ -322,9 +934,9 @@ struct point
 
 void Game::startgame()
 {
-    // TODO: Stworzyc 3 cutscenek:
-    // TODO: cutscena 2: w okolo polowie rozgrywki, przedstawic jakies badanie kopernika, moze opowiedziec krotkie jakas ciekawostke
-    // TODO: cutscena 3: na koncu rozgrywki, podsumowanie, podziekowania, opis dokonan kopernika, napisy koncowe
+    gameUpdate(this->zycia);
+    this->zycia = false;
+
      //  TODO: Dodaj widownie rzucajaca tabliczki (przeszkoda)
 
     window.setMouseCursorVisible(false);
@@ -351,7 +963,7 @@ void Game::startgame()
     sf::Sprite sBackground(t1), sPlat(t2);
     sf::Sprite sPers(t3);
 
-    sBackground.setPosition(200,-4572);
+    sBackground.setPosition(200, backgroundY);
 
     sf::Texture audience1, audience2;
 
@@ -380,9 +992,6 @@ void Game::startgame()
 
     //bool isSpacePressed;
 
-    short iloscZyc = 4;
-    //short *wsk = &iloscZyc; // TODO: zrobic konsole z komenda dodawania zyc
-
     const short ile = iloscZyc+1;
     //sf::Text zycia0("Lives: 0",font,30), zycia1("Lives: 1",font,30), zycia2("Lives: 2",font,30), zycia3("Lives: 3",font,30);
     sf::Text zycia[ile];
@@ -405,8 +1014,7 @@ void Game::startgame()
         zycia[i].setColor(sf::Color::Red);
     }
 
-    /*  TODO: Tabliczki
-     *  prezent z ciekawostka o koperniku
+    /*  TODO: prezent z ciekawostka o koperniku
      *  wyniki koncowe
      *  licznik wyniku
      *  tlo do gameover
@@ -433,6 +1041,17 @@ void Game::startgame()
 
         }
 
+        if (sBackground.getPosition().y < -2005 && sBackground.getPosition().y > -2008){
+            state = CUT2;
+        }
+
+        if (sBackground.getPosition().y < 110 && sBackground.getPosition().y > 100){
+            state = CUT3;
+        }
+
+        // debugowanie; sprawdzenie gdzie znajduje sie tlo
+        //std::cout << "Pozycja y mapy: " << sBackground.getPosition().y << std::endl;
+
         dy+=0.2;
         y+=dy;
 
@@ -441,7 +1060,7 @@ void Game::startgame()
         if (y>600)  {
             //dy=-10;
             if (iloscZyc <= 0)
-                state = GAMEOVER;   //state = MENU;   //TODO: Zrobic efekt Game over etc
+                state = GAMEOVER;
             else{
                 iloscZyc -= 1;
                 dy=-15;
@@ -533,7 +1152,7 @@ void Game::gameOver()
     Text title(Title,font,40);
 	title.setStyle(Text::Bold);
 
-	title.setPosition(szerokosc/3-title.getGlobalBounds().width/2,20);
+	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
 //////////////////////////////////////////////////////////////////////////////
     window.setMouseCursorVisible(false);
 
@@ -552,12 +1171,19 @@ void Game::gameOver()
 	for(int i=0;i<ile;i++)
 	{
 		tekst[i].setFont(font);
-		tekst[i].setCharacterSize(60);              // Main Menu, texts and buttons
+		tekst[i].setCharacterSize(40);              // Main Menu, texts and buttons
 
 		tekst[i].setString(str[i]);
-		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,250+i*120);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,400+i*50);
 	}
 ///////////////////////////////////////////////////////////////////////////////////
+
+    sf::Text gameover("<!Game Over!>",font,90);
+    gameover.setPosition(szerokosc/2-gameover.getGlobalBounds().width/2,wysokosc/3-gameover.getGlobalBounds().height/2);
+
+    sf::Text tryagain("Ale mozesz sprobowac jeszcze raz...",font,30);
+    tryagain.setPosition(szerokosc/2-gameover.getGlobalBounds().width/3-10,tekst[0].getPosition().y-gameover.getGlobalBounds().height/2);
+
 	while(state == GAMEOVER)
 	{
 		Vector2f mouse(Mouse::getPosition(window));
@@ -595,6 +1221,8 @@ void Game::gameOver()
 		window.clear();
 
 		window.draw(title);
+        window.draw(gameover);
+        window.draw(tryagain);
 
 		for(int i=0;i<ile;i++)
 			window.draw(tekst[i]);
@@ -605,114 +1233,7 @@ void Game::gameOver()
 	}
 }
 
-void Game::cut1(){
-    //state = CUT1
-
-    sf::Text title(Title,font,20);
-	title.setStyle(Text::Bold);
-
-	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,575);
-	//skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
-//////////////////////////////////////////////////////////////////////////////
-    window.setMouseCursorVisible(false);
-
-	sf::View fixed = window.getView();
-	sf::Texture cursorTexture;
-	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
-		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
-
-	sf::Sprite cursor(cursorTexture);
-//////////////////////////////////////////////////////////////////////////////
-    string linia;
-    int ile=0;
-    short ilosc_linii = 11; // ilosc linii - 1
-    string str[ilosc_linii];
-
-    fstream plik;
-    plik.open("Resources/Game/cutscenes/cut1.cutscene", ios::in);
-
-    if(plik.good()==false)
-        ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/cut1.cutscene'","ERROR");
-
-    while (getline(plik, linia))
-    {
-        str[ile] = linia;
-        ile++;
-    }
-    plik.close();
-
-	sf::Text tekst[ile];
-
-	for(int i=0;i<ile;i++)
-	{
-		tekst[i].setFont(font3);
-		tekst[i].setCharacterSize(24);              // Main Menu, texts and buttons
-
-		tekst[i].setString(str[i]);
-		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
-	}
-
-	sf::Clock zegar;
-    sf::Time czas;
-
-    zegar.restart();
-
-    int cos = 0;
-
-    //sf::Text skip(Skip,font,20);   // TODO: Sprawdzic dlaczego nie dziala tekst, przy dodaniu nowego crashuje aplikacje / naprawic blad
-    //skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
-
-	while(state == CUT1)
-	{
-		Vector2f mouse(Mouse::getPosition(window));
-		Event event;
-
-		while(window.pollEvent(event))
-		{
-			//Wciœniêcie ESC lub przycisk X
-			if(event.type == Event::Closed)
-                state = END;
-            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space)
-				state = GAMESTART;
-            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
-                console();
-		}
-
-        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
-
-        //std::cout << cos << endl;
-
-        if (czas.asSeconds() > 1.5){
-            cos++;
-            if (cos > ilosc_linii)
-                cos = cos-1;
-
-            zegar.restart();
-        }
-        czas=zegar.getElapsedTime();
-
-		window.clear();
-
-		window.draw(title);
-		//window.draw(skip);
-
-        for (int i = 0; i < cos+1; i++)
-            window.draw(tekst[i]);
-
-        window.setView(fixed);
-        window.draw(cursor);
-		window.display();
-	}
-}
-
-void Game::cut2(){
-    // state = CUT2
-
-}
-
-using namespace std;
-
-void help()
+void Game::help()
 {
     cout << "=================================================" << endl;
     cout << "                  Komendy: " << endl << endl;
@@ -725,7 +1246,10 @@ void help()
     cout << "help - wyswietlenie wszystkich komend" << endl;
     cout << "cutscene1 - przejscie do cutsceny nr 1" << endl;
     cout << "cutscene2 - przejscie do cutsceny nr 2" << endl;
+    cout << "cutscene3 - przejscie do cutsceny nr 3" << endl;
+    cout << "cutscene4 - przejscie do cutsceny nr 4" << endl;
     cout << "options - przejscie do menu opcji" << endl;
+    cout << "greetings - przejscie do Podziekowan" << endl;
     cout << "=================================================" << endl;
     // cout << "" << endl;
 }
@@ -733,17 +1257,30 @@ void help()
 void Game::console()
 {
     string command;
+    int com2 = 0;
 
     komenda:
     cout << endl;
     cout << "Aktualnie: ";
 
     if (state == GAMESTART)
-        cout << "GRA" << endl;
+        cout << "Gra" << endl;
     else if (state == MENU)
-        cout << "MENU" << endl;
+        cout << "Menu" << endl;
     else if (state == GAMEOVER)
-        cout << "GAMEOVER" << endl;
+        cout << "GameOver" << endl;
+    else if (state == CUT1)
+        cout << "Cutscena nr 1" << endl;
+    else if (state == CUT2)
+        cout << "Cutscena nr 2" << endl;
+    else if (state == MENUOPTIONS)
+        cout << "Menu Opcji" << endl;
+    else if (state == CUT3)
+        cout << "Cutscena nr 3" << endl;
+    else if (state == CUT4)
+        cout << "Cutscena nr 4" << endl;
+    else if (state == GREETINGS)
+        cout << "Podziekowania" << endl;
     else
         cout << "Pozycja Nie Znana" << endl;
 
@@ -756,8 +1293,6 @@ void Game::console()
         state = GAMESTART;
     else if (command == "end")
         state = END;
-    //else if (command == "addlive")
-        //*lives += 2;
     else if (command == "gameover")
         state = GAMEOVER;
     else if (command == "exit")
@@ -770,9 +1305,33 @@ void Game::console()
         state = CUT2;
     else if (command == "options")
         state = MENUOPTIONS;
+    else if (command == "cutscene3")
+        state = CUT3;
+    else if (command == "cutscene4")
+        state = CUT4;
+    else if (command == "greetings")
+        state = GREETINGS;
     else{
         cout << "Zla komenda sprobuj jeszcze raz...";
         goto komenda;
     }
     goto komenda;
+}
+
+void Game::gameUpdate(bool a)  {
+        if (this->trudnosc == 0)    this->iloscZyc = 4;
+        else if (this->trudnosc == 1)   this->iloscZyc = 3;
+        else if (this->trudnosc == 2)   this->iloscZyc = 2;
+        else if (this->trudnosc == 3)   this->iloscZyc = 1;
+        else    this->iloscZyc = 0;
+
+        if (a == true)
+            iloscZyc += 1;
+}
+
+void Game::optionsReset(){
+    // defaultowe opcje gry
+    this->trudnosc = 0;
+    this->iloscZyc = 4;
+    this->zycia = false;
 }
