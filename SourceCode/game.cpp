@@ -352,7 +352,7 @@ void Game::hints()
 
     string linia;
     int ile=0;
-    short ilosc_linii = 11; // ilosc linii - 1
+    short ilosc_linii = 13; // ilosc linii - 1
     string str[ilosc_linii];
 
     fstream plik;
@@ -1078,8 +1078,68 @@ void Game::startgame()
      *      napis ma byc nad opcjami do wyboru / zmniejszyc rozmiar opcji
      */
 
+    sf::Texture giftTexture;
+    giftTexture.loadFromFile("Resources/Textures/gift.png");
+
+    sf::Sprite gift;
+    gift.setTexture(giftTexture); // TODO: Losowe ustawienie na mapie i mozliwosc zlapania prezentu
+    //gift.setPosition(300,0);
+
+    bool isGift = false;
+
+    sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    string liniapliku;
+    int ktoralinia=0;
+    short ile_linii = 15; // ilosc linii - 1
+    string napisy[ile_linii];
+
+    fstream plik2;
+    plik2.open("Resources/Game/ciekawostki.data", ios::in);
+
+    if(plik2.good()==false)
+        ErrorMsg("File not found, Check: 'Resources/Game/ciekawostki.data'","ERROR");
+
+    while (getline(plik2, liniapliku))
+    {
+        napisy[ktoralinia] = liniapliku;
+        ktoralinia++;
+    }
+    plik2.close();
+    //cout << "Tu jestem!" << endl;
+	sf::Text ciekawostka[ktoralinia];
+
+	for(int i=0;i<ktoralinia;i++)
+	{
+		ciekawostka[i].setFont(font3);
+		ciekawostka[i].setCharacterSize(27);              // Tekst cutscenki z pliku txt
+
+		ciekawostka[i].setString(napisy[i]);
+		ciekawostka[i].setPosition(szerokosc/2-ciekawostka[i].getGlobalBounds().width/2,200);
+		ciekawostka[i].setFillColor(Color::White);
+	}
+
+    sf::RectangleShape tloNapisow;
+    tloNapisow.setFillColor(Color::Black);
+    tloNapisow.setPosition(0,ciekawostka[0].getPosition().y-1);
+    tloNapisow.setSize(sf::Vector2f(800, 35));
+
+    int whichGift = rand()%ile_linii;
+
+    int giftX = rand()%350+200;
+    int giftY = 0;
+    bool drawciek = false;
+    bool isGift2 = false;
+
     while(state == GAMESTART)
     {
+        //cout << "dy: " << dy << endl;
+        gift.setPosition(giftX,giftY);
+
+        //cout << whichGift << endl;
         //isSpacePressed = false;
 
         Vector2f mouse(Mouse::getPosition());
@@ -1124,16 +1184,25 @@ void Game::startgame()
         }
 
         if (dy > -10 && dy < 0) sBackground.move(0,1); // plynne przechodzenie mapy
+        //if (dy > -10 && dy < 0) gift.move(0,2);
 
         if (y<h)
             for (int i=0;i<10;i++)
             {
                 y=h;
                 plat[i].y = plat[i].y-dy;
+
+                giftY = giftY+1;   // Sam prezent chodzi w porzadku dziala tak jak powinien, ale za szybko
+                                    // sie przemieszcza
+                                    // TODO: Dopasowac predkosc spadania prezentu aby w miare ladnie sie przewija;
+
                 if (plat[i].y>580)
                 {
                     plat[i].y=0;
                     plat[i].x=rand()%400+200;
+                }
+                if(isGift == true && gift.getPosition().y > 580){
+                    giftY = 0;
                 }
             }
 
@@ -1176,6 +1245,46 @@ void Game::startgame()
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)));
 
+        if (isGift == true && sPers.getGlobalBounds().contains(gift.getPosition().x,gift.getPosition().y)){ // czy gracz dotyka prezentu?
+            //drawciek = true; // i pokaz ciekawostke
+            isGift = false; // jesli tak to przestan pokazywac prezent
+            drawciek = true;
+            zegar.restart();
+        }
+
+        if (isGift == false){ // gdy prezentu nie ma na mapie
+            if (drawciek == true){ // jezeli wyswietlona ciekawostka
+                if (czas.asSeconds() > 4){ // po trzech sekundach
+                    whichGift = rand()%ile_linii; // losuje ktora ciekawoste wyswietlic
+                    //cout << whichGift << endl;
+                    isGift2 = true; // gift jest na mapie
+                    drawciek = false; // przestan wyswietlac ciekawostke
+                    zegar.restart();
+                }
+                czas=zegar.getElapsedTime();
+            }
+            else if (isGift2 == true){ // gdy mam ciekawostki nie rysowac
+                if (czas.asSeconds() > 4){ // co cztery sekundy
+                    giftX = rand()%350+200; // losuje polozenie nastepnego prezentu
+                    isGift = true; // prezent jest na mapie
+                    isGift2 = false;
+                    drawciek = false;
+                    zegar.restart();
+                }
+                czas=zegar.getElapsedTime();
+            }
+            else{
+                if (drawciek == false){ // gdy mam ciekawostki nie rysowac
+                    if (czas.asSeconds() > 4){ // co cztery sekundy
+                        giftX = rand()%350+200; // losuje polozenie nastepnego prezentu
+                        isGift = true; // prezent jest na mapie
+                        zegar.restart();
+                    }
+                    czas=zegar.getElapsedTime();
+                }
+            }
+        }
+
         window.clear();
 
         window.draw(sBackground);
@@ -1192,6 +1301,14 @@ void Game::startgame()
 
         window.draw(audienceleft);
         window.draw(audienceright);
+
+        if (isGift == true)
+            window.draw(gift);
+
+        if (drawciek == true){
+            window.draw(tloNapisow);
+            window.draw(ciekawostka[whichGift]);
+        }
 
         window.setView(fixed);
         window.draw(cursor);
