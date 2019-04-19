@@ -35,7 +35,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
     {
         BLOCK "041504E4"
         {
-            VALUE "CompanyName", "Uncle_BOB_Games"
+            VALUE "CompanyName", "Uncle_Bob_Games"
             VALUE "FileVersion", "1.2.0"
             VALUE "FileDescription", "Legendarna historia o Plaskiej Ziemi, Mikolaju Koperniku i teorii Heliocentrycznej"
             VALUE "InternalName", ""

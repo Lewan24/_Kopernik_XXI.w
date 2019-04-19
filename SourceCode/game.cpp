@@ -895,7 +895,7 @@ void Game::cut2(){
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
                 this->iloscZyc += 1;
                 this->backgroundY = -2000;
-                this->zycia = true;
+                this->zycia = false;
                 state = GAMESTART;
             }
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
@@ -935,7 +935,6 @@ struct point
 void Game::startgame()
 {
     gameUpdate(this->zycia);
-    this->zycia = false;
 
      //  TODO: Dodaj widownie rzucajaca tabliczki (przeszkoda)
 
@@ -1319,15 +1318,14 @@ void Game::console()
 }
 
 void Game::gameUpdate(bool a)  {
-        if (this->trudnosc == 0)    this->iloscZyc = 4;
-        else if (this->trudnosc == 1)   this->iloscZyc = 3;
-        else if (this->trudnosc == 2)   this->iloscZyc = 2;
-        else if (this->trudnosc == 3)   this->iloscZyc = 1;
-        else    this->iloscZyc = 0;
-
-        if (a == true)
-            iloscZyc += 1;
-}
+        if (a == true){
+            if (this->trudnosc == 0)    this->iloscZyc = 4;
+            else if (this->trudnosc == 1)   this->iloscZyc = 3;
+            else if (this->trudnosc == 2)   this->iloscZyc = 2;
+            else if (this->trudnosc == 3)   this->iloscZyc = 1;
+            else    this->iloscZyc = 0;
+        }
+    }
 
 void Game::optionsReset(){
     // defaultowe opcje gry

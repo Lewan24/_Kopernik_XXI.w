@@ -53,7 +53,7 @@ protected:
 	GameState state;
 
 private:
-    bool zycia = false;
+    bool zycia = true;
     int backgroundY = -4572;
     short iloscZyc = 4;
     short trudnosc = 0;
