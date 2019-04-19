@@ -146,6 +146,7 @@ void Game::runGame()
             opis gry
             opis Kopernika i jego osiagniec // w dodatkach bedzie jakas dluzsza wersja troche o nim opowiadajaca
             */
+            default: break;
 		}
 	}
 }
@@ -271,28 +272,28 @@ void Game::menu()
 		while(window.pollEvent(event))
 		{
 			//Wciœniêcie ESC lub przycisk X
-			if(event.type == Event::Closed || event.type == Event::KeyPressed &&
-				event.key.code == Keyboard::Escape)
+			if(event.type == Event::Closed || (event.type == Event::KeyPressed &&
+				event.key.code == Keyboard::Escape))
 				state = END;
 
 			//klikniêcie EXIT
 			else if(tekst[2].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				state = END;
 			}
 			else if(tekst[1].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				state = MENUOPTIONS;
 			}
 			else if(tekst[0].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				state = CUT1;
 			}
 			else if(tekst[3].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				state = HINTS;
 			}
@@ -301,8 +302,8 @@ void Game::menu()
 		}
 		for(int i=0;i<ile;i++)
 			if(tekst[i].getGlobalBounds().contains(mouse))
-				tekst[i].setColor(Color::Cyan); // when you will move your mouse on button
-			else tekst[i].setColor(Color::White);
+				tekst[i].setFillColor(Color::Cyan); // when you will move your mouse on button
+			else tekst[i].setFillColor(Color::White);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
@@ -317,15 +318,14 @@ void Game::menu()
 		window.display();
 	}
 }
-
+using namespace std;
 void Game::hints()
 {
-    // TODO: 2-4 zdjecia z poradami do gry, moze jakies screeny z gry, najlepiej zrobione w PhotoShop'ie
     // state = HINTS
-	Text title(Title,font,40);
-	title.setStyle(Text::Bold);
 
-	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
+	sf::Text title(Title,font,30);
+	title.setStyle(Text::Bold);
+    title.setPosition(5,565);
 //////////////////////////////////////////////////////////////////////////////
     window.setMouseCursorVisible(false);
 
@@ -335,21 +335,59 @@ void Game::hints()
 		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
 
 	sf::Sprite cursor(cursorTexture);
-/////////////////////////////////////////////////////////////////////////////
-	const int ile = 2;
+//////////////////////////////////////////////////////////////////////////////
+    const int menu = 2;
 
-	Text tekst[ile];
+	sf::Text wartoscimenu[menu];
 
-	string str[] = {"Kontynuuj","Wyjdz"};
+	string strmenu[] = {"Kontynuuj","Wyjdz"};
+	for(int i=0;i<menu;i++)
+	{
+		wartoscimenu[i].setFont(font);
+		wartoscimenu[i].setCharacterSize(40);
+
+		wartoscimenu[i].setString(strmenu[i]);
+		wartoscimenu[i].setPosition(szerokosc/2,450+i*40);
+	}
+
+    string linia;
+    int ile=0;
+    short ilosc_linii = 11; // ilosc linii - 1
+    string str[ilosc_linii];
+
+    fstream plik;
+    plik.open("Resources/Game/hints.data", ios::in);
+
+    if(plik.good()==false)
+        ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/hints.hint'","ERROR");
+
+    while (getline(plik, linia))
+    {
+        str[ile] = linia;
+        ile++;
+    }
+    plik.close();
+
+	sf::Text tekst[ile];
+
 	for(int i=0;i<ile;i++)
 	{
-		tekst[i].setFont(font);
-		tekst[i].setCharacterSize(40);              // Main Menu, texts and buttons
+		tekst[i].setFont(font3);
+		tekst[i].setCharacterSize(24);              // Tekst cutscenki z pliku txt
 
 		tekst[i].setString(str[i]);
-		tekst[i].setPosition(szerokosc-tekst[i].getGlobalBounds().width-15,500+i*40);
+		tekst[i].setPosition(5,i*35);
 	}
-///////////////////////////////////////////////////////////////////////////////////
+
+	sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    int cos = 0;
+
+    //sf::Text skip(Skip,font,20);
+    //skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,600);
 
 	while(state == HINTS)
 	{
@@ -359,39 +397,49 @@ void Game::hints()
 		while(window.pollEvent(event))
 		{
 			//Wciœniêcie ESC lub przycisk X
-			if(event.type == Event::Closed || event.type == Event::KeyPressed &&
-				event.key.code == Keyboard::Escape)
-				state = END;
-
-			//klikniêcie EXIT
-            else if(tekst[1].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			if(event.type == Event::Closed)
+                state = END;
+            if(wartoscimenu[1].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				state = END;
 			}
-			else if(tekst[0].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+			if(wartoscimenu[0].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				state = MENU;
 			}
-
-			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
 		}
-
-		for(int i=0;i<ile;i++)
-			if(tekst[i].getGlobalBounds().contains(mouse))
-				tekst[i].setColor(Color::Cyan); // when you will move your mouse on button
-			else tekst[i].setColor(Color::White);
+        for(int i=0;i<menu;i++)
+			if(wartoscimenu[i].getGlobalBounds().contains(mouse))
+				wartoscimenu[i].setFillColor(Color::Cyan); // when you will move your mouse on button
+			else wartoscimenu[i].setFillColor(Color::White);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        //std::cout << cos << endl;
+
+        if (czas.asMilliseconds() > 50){
+            cos++;
+            if (cos > ilosc_linii)
+                cos = cos-1;
+
+            zegar.restart();
+        }
+        czas=zegar.getElapsedTime();
 
 		window.clear();
 
 		window.draw(title);
+		//window.draw(skip);
 
-		for(int i=0;i<ile;i++)
-			window.draw(tekst[i]);
+        for(int i=0;i<menu;i++)
+			window.draw(wartoscimenu[i]);
+
+        for (int i = 0; i < cos+1; i++)
+            window.draw(tekst[i]);
 
         window.setView(fixed);
         window.draw(cursor);
@@ -437,14 +485,22 @@ void Game::options()
     sf::Text poziomy[trudnosci];
 
     string strudnosc[trudnosci] = {"Easy", "Normal", "Hard", "Serious", "Mental"};
-
+    string sopisTrudnosci[trudnosci] = {"Poziom dla Turystow","Przecietna trudnosc","Tylko dla Weteranow",
+                                        "Jestes powazny?","Nie mam pytan"};
     // TODO: Opcje maja zapisywac sie i odczytywac z pliku configuracyjnego w plikach gry
+
+    sf::Text opisTrudnosci[trudnosci];
 
     for (int i = 0; i < trudnosci; i++){
         poziomy[i].setFont(font);
         poziomy[i].setPosition(szerokosc/2-poziomy[i].getGlobalBounds().width/2,250);
         poziomy[i].setCharacterSize(50);
         poziomy[i].setString(strudnosc[i]);
+
+        opisTrudnosci[i].setFont(font);
+        opisTrudnosci[i].setPosition(szerokosc/2-opisTrudnosci[i].getGlobalBounds().width/2+30,poziomy[i].getPosition().y-50);
+        opisTrudnosci[i].setCharacterSize(40);
+        opisTrudnosci[i].setString(sopisTrudnosci[i]);
     }
 
     tekst[3].setPosition(szerokosc-tekst[3].getGlobalBounds().width-5,wysokosc-tekst[3].getGlobalBounds().height-5);
@@ -474,22 +530,22 @@ void Game::options()
                 state = MENU;
 			//klikniêcie EXIT
 			else if(tekst[2].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				state = MENU;
 			}
 			else if(tekst[1].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				state = GREETINGS;
 			}
 			else if(tekst[0].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				this->trudnosc++;
 			}
 			else if(tekst[3].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				optionsReset();
 			}
@@ -498,8 +554,8 @@ void Game::options()
 		}
 		for(int i=0;i<ile;i++)
 			if(tekst[i].getGlobalBounds().contains(mouse))
-				tekst[i].setColor(Color::Cyan); // when you will move your mouse on button
-			else tekst[i].setColor(Color::White);
+				tekst[i].setFillColor(Color::Cyan); // when you will move your mouse on button
+			else tekst[i].setFillColor(Color::White);
 
         if (this->trudnosc >= trudnosci)
             this->trudnosc = 0;
@@ -516,6 +572,7 @@ void Game::options()
 			window.draw(tekst[i]);
 
         window.draw(poziomy[trudnosc]);
+        window.draw(opisTrudnosci[trudnosc]);
         window.draw(ilezyc);
 
         window.setView(fixed);
@@ -1010,7 +1067,7 @@ void Game::startgame()
         zycia[i].setPosition(210,0);
         zycia[i].setCharacterSize(20);
         zycia[i].setString(str[i]);
-        zycia[i].setColor(sf::Color::Red);
+        zycia[i].setFillColor(sf::Color::Red);
     }
 
     /*  TODO: prezent z ciekawostka o koperniku
@@ -1032,12 +1089,12 @@ void Game::startgame()
         while(window.pollEvent(event))
         {
             //Wciœniêcie ESC lub przycisk X
-            if(event.type == Event::Closed || event.type == Event::KeyPressed &&
-                event.key.code == Keyboard::Escape)
+            if(event.type == Event::Closed)
+                state = END;
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
                 state = MENU;
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
-
         }
 
         if (sBackground.getPosition().y < -2005 && sBackground.getPosition().y > -2008){
@@ -1198,12 +1255,12 @@ void Game::gameOver()
 
 			//klikniêcie EXIT
 			else if(tekst[2].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				state = END;
 			}
 			else if(tekst[0].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.key.code == Mouse::Left)
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				state = MENU;
 			}
@@ -1212,8 +1269,8 @@ void Game::gameOver()
 		}
 		for(int i=0;i<ile;i++)
 			if(tekst[i].getGlobalBounds().contains(mouse))
-				tekst[i].setColor(sf::Color::Cyan); // when you will move your mouse on button
-			else tekst[i].setColor(sf::Color::White);
+				tekst[i].setFillColor(sf::Color::Cyan); // when you will move your mouse on button
+			else tekst[i].setFillColor(sf::Color::White);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
@@ -1256,7 +1313,6 @@ void Game::help()
 void Game::console()
 {
     string command;
-    int com2 = 0;
 
     komenda:
     cout << endl;

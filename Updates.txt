@@ -1,3 +1,9 @@
+1.2.2.0
+-Add Hints
+-Modify Greetings
+-Fixed bugs
+-Add description of difficulties
+
 1.2.0.0
 -A lot of Stuff
 -Cutscenes number 2,3,4
