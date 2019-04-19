@@ -207,7 +207,7 @@ void Game::greetings()
 
         //std::cout << Background.getPosition().y << std::endl;
 
-        if (Background.getPosition().y < -1500)
+        if (Background.getPosition().y < -1750)
             state = MENU;
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
