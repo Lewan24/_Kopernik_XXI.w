@@ -37,6 +37,13 @@ short wysokosc = 600, szerokosc = 800;
 sf::Vector2i screenDimensions(szerokosc,wysokosc);
 sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Kopernik i Plaska Ziemia",Style::Close);
 
+
+
+
+//TODO: Moze zamiast ciekawostek zrobic co jakis czas pytania o koperniku z wybraniej
+// odpowiedniej pozycji etc
+//TODO: Dodac cos jeszcze oprocz prezentow np, po drugiej cutscence zeby bylo
+// mozna zlapac cos jeszcze
 /*
     window.setMouseCursorVisible(false);
 
@@ -53,7 +60,6 @@ sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "
     window.setView(fixed);
     window.draw(cursor);
 */
-//TODO: Znalezc jakies ciemne nie razace w oczy tla do menu etc / lub zostawic czarno bialy design
 
 // TODO: Wyniki moga byc liczone od sekund przebytych w grze, od ilosci przeskokow pomiedzy prawa a lewa krawedzia
 // gry, ilosc wysokich skokow np. po spacji, poziom trudnosci im ciezszy tym wiecej punktow sie dostaje
@@ -140,10 +146,7 @@ void Game::runGame()
                 hints();
                 break;
 
-            /* TODO: Zrobic Dodatki
-            mozliwosc wylaczenia zderzen z tabliczkami
-            tutorial?
-            opis gry
+            /* TODO:  opis gry
             opis Kopernika i jego osiagniec // w dodatkach bedzie jakas dluzsza wersja troche o nim opowiadajaca
             */
             default: break;
@@ -470,8 +473,8 @@ void Game::options()
 
 	Text tekst[ile];
 
-	string str[] = {"Poziom Trudnosci: ","Podziekowania","<--", "Options Reset"}; // TODO: potem dodac mozliwosc przyspieszenia gry, ale np po przejsciu gry
-                                                                                // na jakims poziomie np hard :)
+	string str[] = {"Poziom Trudnosci: ","Podziekowania","<--", "Options Reset"};
+
 	for(int i=0;i<ile;i++)
 	{
 		tekst[i].setFont(font);
@@ -487,7 +490,6 @@ void Game::options()
     string strudnosc[trudnosci] = {"Easy", "Normal", "Hard", "Serious", "Mental"};
     string sopisTrudnosci[trudnosci] = {"Poziom dla Turystow","Przecietna trudnosc","Tylko dla Weteranow",
                                         "Jestes powazny?","Nie mam pytan"};
-    // TODO: Opcje maja zapisywac sie i odczytywac z pliku configuracyjnego w plikach gry
 
     sf::Text opisTrudnosci[trudnosci];
 
@@ -663,7 +665,7 @@ void Game::cut1(){
 
         //std::cout << cos << endl;
 
-        if (czas.asSeconds() > 1.5){
+        if (czas.asSeconds() > 0.5){
             cos++;
             if (cos > ilosc_linii)
                 cos = cos-1;
@@ -762,7 +764,7 @@ void Game::cut4(){
 
         //std::cout << cos << endl;
 
-        if (czas.asSeconds() > 1.5){
+        if (czas.asSeconds() > 0.5){
             cos++;
             if (cos > ilosc_linii)
                 cos = cos-1;
@@ -804,7 +806,7 @@ void Game::cut3(){
     string linia;
     int ile=0;
     short ilosc_linii = 13; // ilosc linii - 1
-    string str[ilosc_linii];
+    string str[ilosc_linii+1];
 
     fstream plik;
     plik.open("Resources/Game/cutscenes/cut3.cutscene", ios::in);
@@ -861,7 +863,7 @@ void Game::cut3(){
 
         //std::cout << cos << endl;
 
-        if (czas.asSeconds() > 1.5){
+        if (czas.asSeconds() > 1){
             cos++;
             if (cos > ilosc_linii)
                 cos = cos-1;
@@ -951,7 +953,7 @@ void Game::cut2(){
                 state = END;
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
                 this->iloscZyc += 1;
-                this->backgroundY = -2000;
+                this->backgroundY = -2150;
                 this->zycia = false;
                 state = GAMESTART;
             }
@@ -963,7 +965,7 @@ void Game::cut2(){
 
         //std::cout << cos << endl;
 
-        if (czas.asSeconds() > 1.5){
+        if (czas.asSeconds() > 0.5){
             cos++;
             if (cos > ilosc_linii)
                 cos = cos-1;
@@ -993,8 +995,6 @@ void Game::startgame()
 {
     gameUpdate(this->zycia);
 
-     //  TODO: Dodaj widownie rzucajaca tabliczki (przeszkoda)
-
     window.setMouseCursorVisible(false);
 
 	sf::View fixed = window.getView();
@@ -1006,17 +1006,25 @@ void Game::startgame()
 
     srand(time(0));
 
-    Texture t1,t2,t3,t4;
+    Texture t1,platform1,platform2,platform3,t3,t4,doodle3,doodle4;
     if (!t1.loadFromFile("Resources/Textures/background.png"))
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/background.png'","ERROR");
-    if (!t2.loadFromFile("Resources/Textures/platform.png"))
-        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/platform.png'","ERROR");
+    if (!platform1.loadFromFile("Resources/Textures/platform1.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/platform1.png'","ERROR");
+    if (!platform2.loadFromFile("Resources/Textures/platform2.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/platform2.png'","ERROR");
+    if (!platform3.loadFromFile("Resources/Textures/platform3.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/platform3.png'","ERROR");
     if (!t3.loadFromFile("Resources/Textures/doodle.png"))
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/doodle.png'","ERROR");
     if (!t4.loadFromFile("Resources/Textures/doodle2.png"))
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/doodle2.png'","ERROR");
+    if (!doodle3.loadFromFile("Resources/Textures/doodle3.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/doodle3.png'","ERROR");
+    if (!doodle4.loadFromFile("Resources/Textures/doodle4.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/doodle4.png'","ERROR");
 
-    sf::Sprite sBackground(t1), sPlat(t2);
+    sf::Sprite sBackground(t1), sPlat(platform1);
     sf::Sprite sPers(t3);
 
     sBackground.setPosition(200, backgroundY);
@@ -1039,8 +1047,8 @@ void Game::startgame()
 
     for (int i=0;i<10;i++)
     {
-       plat[i].x=rand()%400+200;
-       plat[i].y=rand()%600;
+       plat[i].x=rand()%340+200;
+       plat[i].y=rand()%590;
     }
 
     int x=szerokosc/2, y=10, h=wysokosc/2;
@@ -1070,19 +1078,12 @@ void Game::startgame()
         zycia[i].setFillColor(sf::Color::Red);
     }
 
-    /*  TODO: prezent z ciekawostka o koperniku
-     *  wyniki koncowe
-     *  licznik wyniku
-     *  tlo do gameover
-     *  napis gameover + moze jakis efekt napisu
-     *      napis ma byc nad opcjami do wyboru / zmniejszyc rozmiar opcji
-     */
-
     sf::Texture giftTexture;
-    giftTexture.loadFromFile("Resources/Textures/gift.png");
+    if(!giftTexture.loadFromFile("Resources/Textures/gift.png"))
+        ErrorMsg("hmm... Brakuje Textury! Sprawdz: Resources/Textures/gift.png","ERROR");
 
     sf::Sprite gift;
-    gift.setTexture(giftTexture); // TODO: Losowe ustawienie na mapie i mozliwosc zlapania prezentu
+    gift.setTexture(giftTexture);
     //gift.setPosition(300,0);
 
     bool isGift = false;
@@ -1130,7 +1131,7 @@ void Game::startgame()
     int whichGift = rand()%ile_linii;
 
     int giftX = rand()%350+200;
-    int giftY = 0;
+    float giftY = 0;
     bool drawciek = false;
     bool isGift2 = false;
 
@@ -1153,17 +1154,21 @@ void Game::startgame()
                 state = END;
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
                 state = MENU;
-            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash){
                 console();
+                sBackground.setPosition(200,this->backgroundY);
+            }
         }
 
-        if (sBackground.getPosition().y < -2005 && sBackground.getPosition().y > -2008){
-            state = CUT2;
-        }
+        if (sBackground.getPosition().y < -2200 && sBackground.getPosition().y > -2205)
+                state = CUT2;
+        else if (sBackground.getPosition().y > -50)
+                state = CUT3;
 
-        if (sBackground.getPosition().y < 110 && sBackground.getPosition().y > 100){
-            state = CUT3;
-        }
+        if (sBackground.getPosition().y > -2800 && sBackground.getPosition().y < -851)
+            sPlat.setTexture(platform2);
+        if (sBackground.getPosition().y > -850)
+            sPlat.setTexture(platform3);
 
         // debugowanie; sprawdzenie gdzie znajduje sie tlo
         //std::cout << "Pozycja y mapy: " << sBackground.getPosition().y << std::endl;
@@ -1192,9 +1197,7 @@ void Game::startgame()
                 y=h;
                 plat[i].y = plat[i].y-dy;
 
-                giftY = giftY+1;   // Sam prezent chodzi w porzadku dziala tak jak powinien, ale za szybko
-                                    // sie przemieszcza
-                                    // TODO: Dopasowac predkosc spadania prezentu aby w miare ladnie sie przewija;
+                giftY = giftY+0.7;
 
                 if (plat[i].y>580)
                 {
@@ -1207,8 +1210,11 @@ void Game::startgame()
             }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-            x-=3;
-            sPers.setTexture(t3);
+            x-=5;
+
+            if (sBackground.getPosition().y > -850)
+                sPers.setTexture(doodle3);
+            else sPers.setTexture(t3);
 
             if (sPers.getPosition().x < (150)){
                 //x = x + sPers.getScale().x + szerokosc;
@@ -1216,8 +1222,11 @@ void Game::startgame()
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-            x+=3;
-            sPers.setTexture(t4);
+            x+=5;
+
+            if (sBackground.getPosition().y > -850)
+                sPers.setTexture(doodle4);
+            else sPers.setTexture(t4);
 
             if (sPers.getPosition().x > 580){
                 //x = x + sPers.getScale().x + szerokosc;
@@ -1423,6 +1432,7 @@ void Game::help()
     cout << "cutscene4 - przejscie do cutsceny nr 4" << endl;
     cout << "options - przejscie do menu opcji" << endl;
     cout << "greetings - przejscie do Podziekowan" << endl;
+    cout << "gotoLast - przejscie do koncowki gry" << endl;
     cout << "=================================================" << endl;
     // cout << "" << endl;
 }
@@ -1483,6 +1493,8 @@ void Game::console()
         state = CUT4;
     else if (command == "greetings")
         state = GREETINGS;
+    else if (command == "gotoLast")
+        this->backgroundY = -300;
     else{
         cout << "Zla komenda sprobuj jeszcze raz...";
         goto komenda;

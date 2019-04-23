@@ -54,7 +54,7 @@ protected:
 
 private:
     bool zycia = true;
-    int backgroundY = -4572;
+    int backgroundY = -3650;
     short iloscZyc = 4;
     short trudnosc = 0;
 	sf::Font font, // main
