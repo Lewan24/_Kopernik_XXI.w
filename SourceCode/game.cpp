@@ -27,6 +27,8 @@
 #include <time.h>
 #include <string>
 #include <windows.h>
+#include <cstring>
+#include <SFML/Audio.hpp>
 
 #include "game.h"
 
@@ -37,13 +39,13 @@ short wysokosc = 600, szerokosc = 800;
 sf::Vector2i screenDimensions(szerokosc,wysokosc);
 sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Kopernik i Plaska Ziemia",Style::Close);
 
-
-
-
 //TODO: Moze zamiast ciekawostek zrobic co jakis czas pytania o koperniku z wybraniej
 // odpowiedniej pozycji etc
 //TODO: Dodac cos jeszcze oprocz prezentow np, po drugiej cutscence zeby bylo
 // mozna zlapac cos jeszcze
+//TODO: Zamiast ziemi : slonce
+// TODO: zwiekszyc czas gry o minute okolo
+// TODO: Jakas platforma na poczatku gry a by bylo mozna sie odbic w razie zlego wylosowania platform
 /*
     window.setMouseCursorVisible(false);
 
@@ -72,14 +74,6 @@ Game::Game(void)
 
 	if(!font.loadFromFile("Resources/Fonts/main.otf")) {
         ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/main.otf'","ERROR");
-        return;
-    }
-    if (!font2.loadFromFile("Resources/Fonts/optional.ttf")){
-        ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/optional.ttf'","ERROR");
-        return;
-    }
-    if (!font3.loadFromFile("Resources/Fonts/text.ttf")){
-        ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/text.ttf'","ERROR");
         return;
     }
 
@@ -189,6 +183,21 @@ void Game::greetings()
 
     zegar.restart();
 
+
+    ///////////////////
+    // Muzyka
+
+
+    sf::Music endp;
+
+    if(!endp.openFromFile("Resources/Game/Music/EndCredits.ogg"))
+        ErrorMsg("Hmm.. chyba brakuje dzwieku! Sprawdz: Resources/Game/Music/EndCredits.ogg", "ERROR");
+
+    endp.setVolume(15.f);
+    endp.setLoop(false);
+
+    endp.play();
+
 	while(state == GREETINGS)
 	{
 		Vector2f mouse(Mouse::getPosition(window));
@@ -197,12 +206,15 @@ void Game::greetings()
 		while(window.pollEvent(event))
 		{
 			//Wciœniêcie ESC lub przycisk X
-			if(event.type == Event::Closed)
-				state = END;
+			if(event.type == Event::Closed){
+                endp.stop();
+                state = END;
+			}
 
 			//klikniêcie SPACE
 			else if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space)
 			{
+			    endp.stop();
 				state = MENU;
 			}
 			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
@@ -211,13 +223,15 @@ void Game::greetings()
 
         //std::cout << Background.getPosition().y << std::endl;
 
-        if (Background.getPosition().y < -1750)
+        if (Background.getPosition().y < -1400){
+            endp.stop();
             state = MENU;
+        }
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
         if (czas.asMilliseconds() > 10){
-            Background.move(0,-1);
+            Background.move(0,-3);
             zegar.restart();
         }
         czas=zegar.getElapsedTime();
@@ -237,7 +251,11 @@ void Game::greetings()
 
 void Game::menu()
 {
-	Text title(Title,font,70);
+    this->backgroundY = -3650;
+    this->przej = true;
+    this->playmusic1 = true;
+
+	Text title(Title,font,80);
 	title.setStyle(Text::Bold);
 
 	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
@@ -259,13 +277,13 @@ void Game::menu()
 	for(int i=0;i<ile;i++)
 	{
 		tekst[i].setFont(font);
-		tekst[i].setCharacterSize(60);              // Main Menu, texts and buttons
+		tekst[i].setCharacterSize(70);              // Main Menu, texts and buttons
 
 		tekst[i].setString(str[i]);
-		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,250+i*120);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,250+i*75);
 	}
 ///////////////////////////////////////////////////////////////////////////////////
-    tekst[3].setPosition(5,wysokosc-tekst[3].getGlobalBounds().height-15);
+    tekst[3].setPosition(5,wysokosc-tekst[3].getGlobalBounds().height-30);
 
 	while(state == MENU)
 	{
@@ -350,7 +368,8 @@ void Game::hints()
 		wartoscimenu[i].setCharacterSize(40);
 
 		wartoscimenu[i].setString(strmenu[i]);
-		wartoscimenu[i].setPosition(szerokosc/2,450+i*40);
+		wartoscimenu[i].setPosition(szerokosc-200,450+i*40);
+		wartoscimenu[i].setStyle(Text::Bold);
 	}
 
     string linia;
@@ -375,11 +394,12 @@ void Game::hints()
 
 	for(int i=0;i<ile;i++)
 	{
-		tekst[i].setFont(font3);
-		tekst[i].setCharacterSize(24);              // Tekst cutscenki z pliku txt
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(36);              // Tekst cutscenki z pliku txt
 
 		tekst[i].setString(str[i]);
 		tekst[i].setPosition(5,i*35);
+		tekst[i].setStyle(Text::Bold);
 	}
 
 	sf::Clock zegar;
@@ -482,6 +502,7 @@ void Game::options()
 
 		tekst[i].setString(str[i]);
 		tekst[i].setPosition(szerokosc/4-tekst[i].getGlobalBounds().width/2,250+i*60);
+		tekst[i].setStyle(Text::Bold);
 	}
 ///////////////////////////////////////////////////////////////////////////////////
     const short trudnosci = 5;
@@ -503,17 +524,20 @@ void Game::options()
         opisTrudnosci[i].setPosition(szerokosc/2-opisTrudnosci[i].getGlobalBounds().width/2+30,poziomy[i].getPosition().y-50);
         opisTrudnosci[i].setCharacterSize(40);
         opisTrudnosci[i].setString(sopisTrudnosci[i]);
+
+        poziomy[i].setStyle(Text::Bold);
+        opisTrudnosci[i].setStyle(Text::Bold);
     }
 
-    tekst[3].setPosition(szerokosc-tekst[3].getGlobalBounds().width-5,wysokosc-tekst[3].getGlobalBounds().height-5);
+    tekst[3].setPosition(szerokosc-tekst[3].getGlobalBounds().width-5,wysokosc-tekst[3].getGlobalBounds().height-30);
 
     string zyciastr[6] = {"0","1","2","3","4","5"};
 
     sf::Text ilezyc;
-    ilezyc.setFont(font2);
-    ilezyc.setCharacterSize(30);
-    ilezyc.setString("Ilosc zyc na starcie: " + zyciastr[iloscZyc]);
-    ilezyc.setPosition(15, 200);
+    ilezyc.setFont(font);
+    ilezyc.setCharacterSize(45);
+    ilezyc.setPosition(50, 150);
+    ilezyc.setStyle(Text::Bold);
 
 	while(state == MENUOPTIONS)
 	{
@@ -626,11 +650,12 @@ void Game::cut1(){
 
 	for(int i=0;i<ile;i++)
 	{
-		tekst[i].setFont(font3);
-		tekst[i].setCharacterSize(24);              // Main Menu, texts and buttons
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(38);              // Main Menu, texts and buttons
 
 		tekst[i].setString(str[i]);
 		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+		tekst[i].setStyle(Text::Bold);
 	}
 
 	sf::Clock zegar;
@@ -726,11 +751,12 @@ void Game::cut4(){
 
 	for(int i=0;i<ile;i++)
 	{
-		tekst[i].setFont(font3);
-		tekst[i].setCharacterSize(24);              // Tekst cutscenki z pliku txt
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(38);              // Tekst cutscenki z pliku txt
 
 		tekst[i].setString(str[i]);
 		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+		tekst[i].setStyle(Text::Bold);
 	}
 
 	sf::Clock zegar;
@@ -825,11 +851,12 @@ void Game::cut3(){
 
 	for(int i=0;i<ile;i++)
 	{
-		tekst[i].setFont(font3);
-		tekst[i].setCharacterSize(24);              // Tekst cutscenki z pliku txt
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(38);              // Tekst cutscenki z pliku txt
 
 		tekst[i].setString(str[i]);
 		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+		tekst[i].setStyle(Text::Bold);
 	}
 
 	sf::Clock zegar;
@@ -863,7 +890,7 @@ void Game::cut3(){
 
         //std::cout << cos << endl;
 
-        if (czas.asSeconds() > 1){
+        if (czas.asSeconds() > 0.5){
             cos++;
             if (cos > ilosc_linii)
                 cos = cos-1;
@@ -924,11 +951,12 @@ void Game::cut2(){
 
 	for(int i=0;i<ile;i++)
 	{
-		tekst[i].setFont(font3);
-		tekst[i].setCharacterSize(24);              // Tekst cutscenki z pliku txt
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(38);              // Tekst cutscenki z pliku txt
 
 		tekst[i].setString(str[i]);
 		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+		tekst[i].setStyle(Text::Bold);
 	}
 
 	sf::Clock zegar;
@@ -993,7 +1021,7 @@ struct point
 
 void Game::startgame()
 {
-    gameUpdate(this->zycia);
+    gameUpdate(true);
 
     window.setMouseCursorVisible(false);
 
@@ -1067,15 +1095,16 @@ void Game::startgame()
     string str[ile2];
 
     for(int i = 0; i < ile2; i++){ // dla kazdego stringa przypisuje odpowiednia wartosc
-        str[i] = "Lives: " + zyciastr[i];
+        str[i] = "Zycia: " + zyciastr[i];
     }
 
     for (int i = 0; i < ile; i++){ // dla kazdego stringa ustawiam kolor, wielkosc itd
-        zycia[i].setFont(font2);
+        zycia[i].setFont(font);
         zycia[i].setPosition(210,0);
-        zycia[i].setCharacterSize(20);
+        zycia[i].setCharacterSize(25);
         zycia[i].setString(str[i]);
         zycia[i].setFillColor(sf::Color::Red);
+        zycia[i].setStyle(Text::Bold);
     }
 
     sf::Texture giftTexture;
@@ -1115,18 +1144,19 @@ void Game::startgame()
 
 	for(int i=0;i<ktoralinia;i++)
 	{
-		ciekawostka[i].setFont(font3);
-		ciekawostka[i].setCharacterSize(27);              // Tekst cutscenki z pliku txt
+		ciekawostka[i].setFont(font);
+		ciekawostka[i].setCharacterSize(34);              // Tekst cutscenki z pliku txt
 
 		ciekawostka[i].setString(napisy[i]);
 		ciekawostka[i].setPosition(szerokosc/2-ciekawostka[i].getGlobalBounds().width/2,200);
 		ciekawostka[i].setFillColor(Color::White);
+		ciekawostka[i].setStyle(Text::Bold);
 	}
 
     sf::RectangleShape tloNapisow;
     tloNapisow.setFillColor(Color::Black);
-    tloNapisow.setPosition(0,ciekawostka[0].getPosition().y-1);
-    tloNapisow.setSize(sf::Vector2f(800, 35));
+    tloNapisow.setPosition(0,ciekawostka[1].getPosition().y+4);
+    tloNapisow.setSize(sf::Vector2f(800, 43));
 
     int whichGift = rand()%ile_linii;
 
@@ -1135,9 +1165,73 @@ void Game::startgame()
     bool drawciek = false;
     bool isGift2 = false;
 
+    ///////////////////////////////
+    // Muzyka
+
+
+    sf::Music soundtrack, soundtrack2;
+    if(!soundtrack.openFromFile("Resources/Game/Music/GameSoundTrack2.ogg"))
+        ErrorMsg("hmm... Chyba brakuje dzwiekow, Sprawdz: Resources/Game/Music/GameSoundTrack2.ogg","ERROR");
+    if(!soundtrack2.openFromFile("Resources/Game/Music/GameSoundTrack3.ogg"))
+        ErrorMsg("hmm... Chyba brakuje dzwiekow, Sprawdz: Resources/Game/Music/GameSoundTrack3.ogg","ERROR");
+
+    soundtrack.setLoop(false);
+    soundtrack.setVolume(15.f);
+    soundtrack2.setLoop(false);
+    soundtrack2.setVolume(15.f);
+
+    if (playmusic1 == true)
+        soundtrack.play();
+    else    soundtrack2.play();
+
+
+    ////////////////////////
+    // Dzwieki
+
+
+    sf::SoundBuffer sfall1, sfall2, sfall3;
+    sf::SoundBuffer shop;
+    sf::SoundBuffer sprzejscie;
+    if(!sfall1.loadFromFile("Resources/Game/Music/fall.wav"))
+        ErrorMsg("hmm... Chyba brakuje dzwieku! Sprawdz: Resources/Game/Music/fall.wav", "ERROR");
+    if(!sfall2.loadFromFile("Resources/Game/Music/fall2.wav"))
+       ErrorMsg("hmm... Chyba brakuje dzwieku! Sprawdz: Resources/Game/Music/fall2.wav", "ERROR");
+    if(!sfall3.loadFromFile("Resources/Game/Music/fall3.wav"))
+       ErrorMsg("hmm... Chyba brakuje dzwieku! Sprawdz: Resources/Game/Music/fall3.wav", "ERROR");
+    if(!shop.loadFromFile("Resources/Game/Music/hop.wav"))
+       ErrorMsg("hmm... Chyba brakuje dzwieku! Sprawdz: Resources/Game/Music/hop.wav", "ERROR");
+    if(!sprzejscie.loadFromFile("Resources/Game/Music/przejscie.wav"))
+       ErrorMsg("hmm... Chyba brakuje dzwieku! Sprawdz: Resources/Game/Music/przejscie.wav", "ERROR");
+
+    sf::Sound fall1, fall2, fall3;
+    sf::Sound przejscie;
+    sf::Sound hop; // -10 - -9.8
+    fall1.setBuffer(sfall1);
+    fall2.setBuffer(sfall2);
+    fall3.setBuffer(sfall3);
+
+    hop.setBuffer(shop);
+    przejscie.setBuffer(sprzejscie);
+
+    fall1.setLoop(false);
+    fall2.setLoop(false);
+    fall3.setLoop(false);
+
+    hop.setLoop(false);
+    przejscie.setLoop(false);
+
+    fall1.setVolume(30.f);
+    fall2.setVolume(30.f);
+    fall3.setVolume(30.f);
+
+    hop.setVolume(30.f);
+    przejscie.setVolume(30.f);
+
+    int ktoryfall = 0;
+
     while(state == GAMESTART)
     {
-        //cout << "dy: " << dy << endl;
+        cout << "dy: " << dy << endl;
         gift.setPosition(giftX,giftY);
 
         //cout << whichGift << endl;
@@ -1150,20 +1244,31 @@ void Game::startgame()
         while(window.pollEvent(event))
         {
             //Wciœniêcie ESC lub przycisk X
-            if(event.type == Event::Closed)
+            if(event.type == Event::Closed){
+                soundtrack.stop();
+                soundtrack2.stop();
                 state = END;
-            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+            }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
+                soundtrack.stop();
+                soundtrack2.stop();
                 state = MENU;
+            }
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash){
                 console();
                 sBackground.setPosition(200,this->backgroundY);
             }
         }
 
-        if (sBackground.getPosition().y < -2200 && sBackground.getPosition().y > -2205)
-                state = CUT2;
-        else if (sBackground.getPosition().y > -50)
-                state = CUT3;
+        if (sBackground.getPosition().y < -2200 && sBackground.getPosition().y > -2205){
+            soundtrack.stop();
+            this->playmusic1 = false;
+            state = CUT2;
+        }
+        else if (sBackground.getPosition().y > 100){
+            soundtrack2.stop();
+            state = CUT3;
+        }
 
         if (sBackground.getPosition().y > -2800 && sBackground.getPosition().y < -851)
             sPlat.setTexture(platform2);
@@ -1185,6 +1290,14 @@ void Game::startgame()
             else{
                 iloscZyc -= 1;
                 dy=-15;
+
+                ktoryfall = rand()%3;
+
+                if (ktoryfall == 0)
+                    fall1.play();
+                else if (ktoryfall == 1)
+                    fall2.play();
+                else    fall3.play();
             }
         }
 
@@ -1219,6 +1332,11 @@ void Game::startgame()
             if (sPers.getPosition().x < (150)){
                 //x = x + sPers.getScale().x + szerokosc;
                 x = x + sPers.getScale().x + 400;
+
+                if(this->przej == true){
+                    przejscie.play();
+                    this->przej = false;
+                }
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
@@ -1231,14 +1349,23 @@ void Game::startgame()
             if (sPers.getPosition().x > 580){
                 //x = x + sPers.getScale().x + szerokosc;
                 x = 200;
+
+                if(this->przej == true){
+                    przejscie.play();
+                    this->przej = false;
+                }
+
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
             dy+=1;
-
+// -10 - -9.8
             for (int i=0;i<10;i++)
                 if ((x+50>plat[i].x) && (x+20<plat[i].x+68)
-                && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dy>0))  dy=-15;
+                && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dy>0)){
+                    dy=-15;
+                    hop.play();
+                }
 
             if (dy > 0 && dy < 1) sBackground.move(0,-5);
 
@@ -1247,7 +1374,10 @@ void Game::startgame()
         else{
             for (int i=0;i<10;i++)
                 if ((x+50>plat[i].x) && (x+20<plat[i].x+68)
-                && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dy>0))   dy=-10;
+                && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dy>0)){
+                    dy=-10;
+                    hop.play();
+                }
         }
 
         sPers.setPosition(x,y);
@@ -1357,6 +1487,7 @@ void Game::gameOver()
 
 		tekst[i].setString(str[i]);
 		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,400+i*50);
+		tekst[i].setStyle(Text::Bold);
 	}
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -1365,6 +1496,37 @@ void Game::gameOver()
 
     sf::Text tryagain("Ale mozesz sprobowac jeszcze raz...",font,30);
     tryagain.setPosition(szerokosc/2-gameover.getGlobalBounds().width/3-10,tekst[0].getPosition().y-gameover.getGlobalBounds().height/2);
+
+    gameover.setStyle(Text::Bold);
+    tryagain.setStyle(Text::Bold);
+
+    ////////////////////////
+    // Dzwieki
+
+
+    sf::SoundBuffer sover1, sover2;
+    if(!sover1.loadFromFile("Resources/Game/Music/gameover1.wav"))
+        ErrorMsg("hmm... Chyba brakuje dzwieku! Sprawdz Resources/Game/Music/gameover1.wav","ERROR");
+    if(!sover2.loadFromFile("Resources/Game/Music/gameover2.wav"))
+        ErrorMsg("hmm... Chyba brakuje dzwieku! Sprawdz Resources/Game/Music/gameover2.wav","ERROR");
+
+    sf::Sound over1, over2;
+    over1.setBuffer(sover1);
+    over2.setBuffer(sover2);
+
+    over1.setLoop(false);
+    over2.setLoop(false);
+
+    over1.setVolume(40.f);
+    over2.setVolume(40.f);
+
+    srand(time(NULL));
+
+    int ktoryover = rand()%2;
+
+    if (ktoryover == 0)
+        over1.play();
+    else over2.play();
 
 	while(state == GAMEOVER)
 	{
@@ -1503,18 +1665,18 @@ void Game::console()
 }
 
 void Game::gameUpdate(bool a)  {
-        if (a == true){
-            if (this->trudnosc == 0)    this->iloscZyc = 4;
-            else if (this->trudnosc == 1)   this->iloscZyc = 3;
-            else if (this->trudnosc == 2)   this->iloscZyc = 2;
-            else if (this->trudnosc == 3)   this->iloscZyc = 1;
-            else    this->iloscZyc = 0;
-        }
+    if (a == true){
+        if (this->trudnosc == 0)    this->iloscZyc = 4;
+        else if (this->trudnosc == 1)   this->iloscZyc = 3;
+        else if (this->trudnosc == 2)   this->iloscZyc = 2;
+        else if (this->trudnosc == 3)   this->iloscZyc = 1;
+        else    this->iloscZyc = 0;
     }
+}
 
 void Game::optionsReset(){
     // defaultowe opcje gry
     this->trudnosc = 0;
     this->iloscZyc = 4;
-    this->zycia = false;
+    //this->zycia = false;
 }

@@ -28,8 +28,8 @@
 #include <Windows.h>
 #include <string>
 #include <iostream>
+
 //#include <SFML/Network.hpp>
-//#include <SFML/Audio.hpp>
 //#include <SFML/System.hpp>
 //#include <SFML/Window.hpp>
 
@@ -53,14 +53,15 @@ protected:
 	GameState state;
 
 private:
+    bool przej = true;
+    bool playmusic1 = true;
     bool zycia = true;
     int backgroundY = -3650;
     short iloscZyc = 4;
     short trudnosc = 0;
-	sf::Font font, // main
-            font2, // lives
-            font3; // text
-    string Title = "Kopernik i Plaska Ziemia";
+	sf::Font font;
+
+    string Title = "Kopernik i plaska ziemia";
     string Skip = "Space, aby pominac";
     //string Wyjscie = "Escape, aby wrocic";
 	void menu();
