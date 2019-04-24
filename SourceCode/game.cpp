@@ -374,7 +374,7 @@ void Game::hints()
 
     string linia;
     int ile=0;
-    short ilosc_linii = 13; // ilosc linii - 1
+    short ilosc_linii = 11; // ilosc linii - 1
     string str[ilosc_linii];
 
     fstream plik;
