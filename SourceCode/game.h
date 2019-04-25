@@ -27,6 +27,7 @@
 #include <SFML/Graphics.hpp>
 #include <Windows.h>
 #include <string>
+#include <cstring>
 #include <iostream>
 
 //#include <SFML/Network.hpp>
@@ -56,13 +57,13 @@ private:
     bool przej = true;
     bool playmusic1 = true;
     bool zycia = true;
+    bool platforma = true;
+
     int backgroundY = -3650;
     short iloscZyc = 4;
     short trudnosc = 0;
 	sf::Font font;
 
-    string Title = "Kopernik i plaska ziemia";
-    string Skip = "Space, aby pominac";
     //string Wyjscie = "Escape, aby wrocic";
 	void menu();
 	void greetings();

@@ -1,3 +1,11 @@
+1.3.3.0
+-Add Music
+-Add cutscene audio
+-Add Security Platform
+-Modify some texts
+-Modify Textures
+-Add Polish Letters
+
 1.3.1.0
 -Add Music
 -Add Sound Effects

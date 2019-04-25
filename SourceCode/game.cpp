@@ -37,15 +37,13 @@ using namespace sf;
 short wysokosc = 600, szerokosc = 800;
 
 sf::Vector2i screenDimensions(szerokosc,wysokosc);
-sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "Kopernik i Plaska Ziemia",Style::Close);
+sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), L"Kopernik i Płaska Ziemia",Style::Close);
 
 //TODO: Moze zamiast ciekawostek zrobic co jakis czas pytania o koperniku z wybraniej
 // odpowiedniej pozycji etc
 //TODO: Dodac cos jeszcze oprocz prezentow np, po drugiej cutscence zeby bylo
 // mozna zlapac cos jeszcze
 //TODO: Zamiast ziemi : slonce
-// TODO: zwiekszyc czas gry o minute okolo
-// TODO: Jakas platforma na poczatku gry a by bylo mozna sie odbic w razie zlego wylosowania platform
 /*
     window.setMouseCursorVisible(false);
 
@@ -80,7 +78,6 @@ Game::Game(void)
 	state = MENU;
 }
 
-
 Game::~Game(void)
 {
 }
@@ -92,8 +89,7 @@ void Game::ErrorMsg(string error, string title)
     state = END;
 }
 
-void Game::runGame()
-{   // TODO: Dodac sciezke dzwiekowa
+void Game::runGame(){
     window.setFramerateLimit(60);
 
 	while(state != END)
@@ -152,7 +148,7 @@ void Game::greetings()
 {
     // state = GREETINGS
 
-    Text title(Title,font,40);
+    Text title(L"Kopernik i Płaska Ziemia",font,40);
 	title.setStyle(Text::Bold);
 
 	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
@@ -167,7 +163,7 @@ void Game::greetings()
 	sf::Sprite cursor(cursorTexture);
 /////////////////////////////////////////////////////////////////////////////
 
-    sf::Text skip(Skip,font,20);
+    sf::Text skip(L"Space, aby pominąć",font,20);
     skip.setPosition(szerokosc-skip.getGlobalBounds().width-15,wysokosc-skip.getGlobalBounds().height-20);
 
     Texture t1;
@@ -254,8 +250,10 @@ void Game::menu()
     this->backgroundY = -3650;
     this->przej = true;
     this->playmusic1 = true;
+    this->zycia = true;
+    this->platforma = true;
 
-	Text title(Title,font,80);
+	Text title(L"Kopernik i Płaska Ziemia",font,80);
 	title.setStyle(Text::Bold);
 
 	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
@@ -344,7 +342,7 @@ void Game::hints()
 {
     // state = HINTS
 
-	sf::Text title(Title,font,30);
+	sf::Text title(L"Kopernik i Płaska Ziemia",font,30);
 	title.setStyle(Text::Bold);
     title.setPosition(5,565);
 //////////////////////////////////////////////////////////////////////////////
@@ -361,7 +359,7 @@ void Game::hints()
 
 	sf::Text wartoscimenu[menu];
 
-	string strmenu[] = {"Kontynuuj","Wyjdz"};
+	string strmenu[] = {"Kontynuuj",""};
 	for(int i=0;i<menu;i++)
 	{
 		wartoscimenu[i].setFont(font);
@@ -375,7 +373,7 @@ void Game::hints()
     string linia;
     int ile=0;
     short ilosc_linii = 11; // ilosc linii - 1
-    string str[ilosc_linii];
+    sf::String str[ilosc_linii+1];
 
     fstream plik;
     plik.open("Resources/Game/hints.data", ios::in);
@@ -383,11 +381,17 @@ void Game::hints()
     if(plik.good()==false)
         ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/hints.hint'","ERROR");
 
+    std::basic_string < sf::Uint32 > tmp[ilosc_linii+1];
+    //cout << "Jestem tutaj!" << endl;
     while (getline(plik, linia))
     {
-        str[ile] = linia;
+        //str[ile] = linia;
+        sf::Utf8::toUtf32( linia.begin(), linia.end(), std::back_inserter( tmp[ile] ) );
+        str[ile] = tmp[ile];
         ile++;
+        //cout << "Jestem tutaj!" << endl;
     }
+    //cout << "Jestem tutaj!" << endl;
     plik.close();
 
 	sf::Text tekst[ile];
@@ -422,11 +426,6 @@ void Game::hints()
 			//Wciœniêcie ESC lub przycisk X
 			if(event.type == Event::Closed)
                 state = END;
-            if(wartoscimenu[1].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
-			{
-				state = END;
-			}
 			if(wartoscimenu[0].getGlobalBounds().contains(mouse) &&
 				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
@@ -475,7 +474,7 @@ void Game::options()
 {
     // state = MENUOPTIONS
 
-    Text title(Title,font,40);
+    Text title(L"Kopernik i Płaska Ziemia",font,40);
 	title.setStyle(Text::Bold);
 
 	title.setPosition(szerokosc/4-title.getGlobalBounds().width/2,20);
@@ -493,7 +492,7 @@ void Game::options()
 
 	Text tekst[ile];
 
-	string str[] = {"Poziom Trudnosci: ","Podziekowania","<--", "Options Reset"};
+	sf::String str[] = {L"Poziom Trudności: ",L"Podziękowania","<--", "Zresetuj Opcje"};
 
 	for(int i=0;i<ile;i++)
 	{
@@ -509,8 +508,8 @@ void Game::options()
     sf::Text poziomy[trudnosci];
 
     string strudnosc[trudnosci] = {"Easy", "Normal", "Hard", "Serious", "Mental"};
-    string sopisTrudnosci[trudnosci] = {"Poziom dla Turystow","Przecietna trudnosc","Tylko dla Weteranow",
-                                        "Jestes powazny?","Nie mam pytan"};
+    sf::String sopisTrudnosci[trudnosci] = {L"Poziom dla Turystów",L"Przeciętna trudność",L"Tylko dla Weteranów",
+                                        L"Jesteś poważny?",L"Nie mam pytań"};
 
     sf::Text opisTrudnosci[trudnosci];
 
@@ -586,7 +585,7 @@ void Game::options()
         if (this->trudnosc >= trudnosci)
             this->trudnosc = 0;
 
-        ilezyc.setString("Ilosc zyc na starcie: " + zyciastr[iloscZyc]);
+        ilezyc.setString(L"Ilość żyć na start: " + zyciastr[iloscZyc]);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
@@ -610,7 +609,7 @@ void Game::options()
 void Game::cut1(){
     //state = CUT1
 
-    sf::Text title(Title,font,20);
+    sf::Text title(L"Kopernik i Płaska Ziemia",font,20);
 	title.setStyle(Text::Bold);
 
 
@@ -631,7 +630,7 @@ void Game::cut1(){
     string linia;
     int ile=0;
     short ilosc_linii = 13; // ilosc linii - 1
-    string str[ilosc_linii];
+    sf::String str[ilosc_linii+1];
 
     fstream plik;
     plik.open("Resources/Game/cutscenes/cut1.cutscene", ios::in);
@@ -639,9 +638,12 @@ void Game::cut1(){
     if(plik.good()==false)
         ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/cut1.cutscene'","ERROR");
 
+    std::basic_string < sf::Uint32 > tmp[ilosc_linii+1];
     while (getline(plik, linia))
     {
-        str[ile] = linia;
+        //str[ile] = linia;
+        sf::Utf8::toUtf32( linia.begin(), linia.end(), std::back_inserter( tmp[ile] ) );
+        str[ile] = tmp[ile];
         ile++;
     }
     plik.close();
@@ -665,8 +667,31 @@ void Game::cut1(){
 
     int cos = 0;
 
-    sf::Text skip(Skip,font,20);
+    sf::Text skip(L"Space, aby pominąć",font,20);
     skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+    //////////////////////////////////
+    // Mamrotanie :D
+
+
+    sf::Music mumbling1, mumbling2;
+
+    mumbling1.openFromFile("Resources/Game/Music/mumbling.ogg");
+    mumbling2.openFromFile("Resources/Game/Music/mumbling2.wav");
+
+    mumbling1.setVolume(50.f);
+    mumbling2.setVolume(50.f);
+
+    mumbling1.setLoop(false);
+    mumbling2.setLoop(false);
+
+
+    int ktorymumbling = rand()%2;
+
+    if (ktorymumbling == 0)
+        mumbling1.play();
+    else mumbling2.play();
+
 
 	while(state == CUT1)
 	{
@@ -676,12 +701,24 @@ void Game::cut1(){
 		while(window.pollEvent(event))
 		{
 			//Wciœniêcie ESC lub przycisk X
-			if(event.type == Event::Closed)
+			if(event.type == Event::Closed){
+                mumbling1.stop();
+                mumbling2.stop();
                 state = END;
-            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space)
-				state = GAMESTART;
-            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
-				state = MENU;
+			}
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
+                mumbling1.stop();
+                mumbling2.stop();
+                state = GAMESTART;
+            }
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
+                mumbling1.stop();
+                mumbling2.stop();
+                state = MENU;
+            }
+
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
 		}
@@ -716,7 +753,7 @@ void Game::cut1(){
 void Game::cut4(){
     // state = CUT4
 
-    sf::Text title(Title,font,20);
+    sf::Text title(L"Kopernik i Płaska Ziemia",font,20);
 	title.setStyle(Text::Bold);
     title.setPosition(5,575);
 //////////////////////////////////////////////////////////////////////////////
@@ -732,7 +769,7 @@ void Game::cut4(){
     string linia;
     int ile=0;
     short ilosc_linii = 6; // ilosc linii - 1
-    string str[ilosc_linii];
+    sf::String str[ilosc_linii+1];
 
     fstream plik;
     plik.open("Resources/Game/cutscenes/cut4.cutscene", ios::in);
@@ -740,9 +777,12 @@ void Game::cut4(){
     if(plik.good()==false)
         ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/cut4.cutscene'","ERROR");
 
+    std::basic_string < sf::Uint32 > tmp[ilosc_linii+1];
     while (getline(plik, linia))
     {
-        str[ile] = linia;
+        //str[ile] = linia;
+        sf::Utf8::toUtf32( linia.begin(), linia.end(), std::back_inserter( tmp[ile] ) );
+        str[ile] = tmp[ile];
         ile++;
     }
     plik.close();
@@ -766,8 +806,30 @@ void Game::cut4(){
 
     int cos = 0;
 
-    sf::Text skip(Skip,font,20);
+    sf::Text skip(L"Space, aby pominąć",font,20);
     skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+    //////////////////////////////////
+    // Mamrotanie :D
+
+
+    sf::Music mumbling1, mumbling2;
+
+    mumbling1.openFromFile("Resources/Game/Music/mumbling.ogg");
+    mumbling2.openFromFile("Resources/Game/Music/mumbling2.wav");
+
+    mumbling1.setVolume(50.f);
+    mumbling2.setVolume(50.f);
+
+    mumbling1.setLoop(false);
+    mumbling2.setLoop(false);
+
+
+    int ktorymumbling = rand()%2;
+
+    if (ktorymumbling == 0)
+        mumbling1.play();
+    else mumbling2.play();
 
 	while(state == CUT4)
 	{
@@ -816,7 +878,7 @@ void Game::cut4(){
 void Game::cut3(){
     // state = CUT3
 
-    sf::Text title(Title,font,20);
+    sf::Text title(L"Kopernik i Płaska Ziemia",font,20);
 	title.setStyle(Text::Bold);
     title.setPosition(5,575);
 //////////////////////////////////////////////////////////////////////////////
@@ -832,7 +894,7 @@ void Game::cut3(){
     string linia;
     int ile=0;
     short ilosc_linii = 13; // ilosc linii - 1
-    string str[ilosc_linii+1];
+    sf::String str[ilosc_linii+1];
 
     fstream plik;
     plik.open("Resources/Game/cutscenes/cut3.cutscene", ios::in);
@@ -840,9 +902,12 @@ void Game::cut3(){
     if(plik.good()==false)
         ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/cut3.cutscene'","ERROR");
 
+    std::basic_string < sf::Uint32 > tmp[ilosc_linii+1];
     while (getline(plik, linia))
     {
-        str[ile] = linia;
+        //str[ile] = linia;
+        sf::Utf8::toUtf32( linia.begin(), linia.end(), std::back_inserter( tmp[ile] ) );
+        str[ile] = tmp[ile];
         ile++;
     }
     plik.close();
@@ -866,8 +931,30 @@ void Game::cut3(){
 
     int cos = 0;
 
-    sf::Text skip(Skip,font,20);
+    sf::Text skip(L"Space, aby pominąć",font,20);
     skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+    //////////////////////////////////
+    // Mamrotanie :D
+
+
+    sf::Music mumbling1, mumbling2;
+
+    mumbling1.openFromFile("Resources/Game/Music/mumbling.ogg");
+    mumbling2.openFromFile("Resources/Game/Music/mumbling2.wav");
+
+    mumbling1.setVolume(50.f);
+    mumbling2.setVolume(50.f);
+
+    mumbling1.setLoop(false);
+    mumbling2.setLoop(false);
+
+
+    int ktorymumbling = rand()%2;
+
+    if (ktorymumbling == 0)
+        mumbling1.play();
+    else mumbling2.play();
 
 	while(state == CUT3)
 	{
@@ -877,9 +964,15 @@ void Game::cut3(){
 		while(window.pollEvent(event))
 		{
 			//Wciœniêcie ESC lub przycisk X
-			if(event.type == Event::Closed)
+			if(event.type == Event::Closed){
+                mumbling1.stop();
+                mumbling2.stop();
                 state = END;
+			}
+
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
+                mumbling1.stop();
+                mumbling2.stop();
                 state = CUT4;
             }
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
@@ -916,7 +1009,9 @@ void Game::cut3(){
 void Game::cut2(){
     // state = CUT2
 
-    sf::Text title(Title,font,20);
+    this->platforma = true;
+
+    sf::Text title(L"Kopernik i Płaska Ziemia",font,20);
 	title.setStyle(Text::Bold);
     title.setPosition(5,575);
 //////////////////////////////////////////////////////////////////////////////
@@ -932,7 +1027,7 @@ void Game::cut2(){
     string linia;
     int ile=0;
     short ilosc_linii = 12; // ilosc linii - 1
-    string str[ilosc_linii];
+    sf::String str[ilosc_linii+1];
 
     fstream plik;
     plik.open("Resources/Game/cutscenes/cut2.cutscene", ios::in);
@@ -940,9 +1035,12 @@ void Game::cut2(){
     if(plik.good()==false)
         ErrorMsg("File not found, Check: 'Resources/Game/cutscenes/cut2.cutscene'","ERROR");
 
+    std::basic_string < sf::Uint32 > tmp[ilosc_linii+1];
     while (getline(plik, linia))
     {
-        str[ile] = linia;
+        //str[ile] = linia;
+        sf::Utf8::toUtf32( linia.begin(), linia.end(), std::back_inserter( tmp[ile] ) );
+        str[ile] = tmp[ile];
         ile++;
     }
     plik.close();
@@ -966,8 +1064,30 @@ void Game::cut2(){
 
     int cos = 0;
 
-    sf::Text skip(Skip,font,20);
+    sf::Text skip(L"Space, aby pominąć",font,20);
     skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+    //////////////////////////////////
+    // Mamrotanie :D
+
+
+    sf::Music mumbling1, mumbling2;
+
+    mumbling1.openFromFile("Resources/Game/Music/mumbling.ogg");
+    mumbling2.openFromFile("Resources/Game/Music/mumbling2.wav");
+
+    mumbling1.setVolume(50.f);
+    mumbling2.setVolume(50.f);
+
+    mumbling1.setLoop(false);
+    mumbling2.setLoop(false);
+
+
+    int ktorymumbling = rand()%2;
+
+    if (ktorymumbling == 0)
+        mumbling1.play();
+    else mumbling2.play();
 
 	while(state == CUT2)
 	{
@@ -977,12 +1097,18 @@ void Game::cut2(){
 		while(window.pollEvent(event))
 		{
 			//Wciœniêcie ESC lub przycisk X
-			if(event.type == Event::Closed)
+			if(event.type == Event::Closed){
+                mumbling1.stop();
+                mumbling2.stop();
                 state = END;
+			}
+
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
                 this->iloscZyc += 1;
                 this->backgroundY = -2150;
                 this->zycia = false;
+                mumbling1.stop();
+                mumbling2.stop();
                 state = GAMESTART;
             }
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
@@ -1021,7 +1147,7 @@ struct point
 
 void Game::startgame()
 {
-    gameUpdate(true);
+    gameUpdate(zycia);
 
     window.setMouseCursorVisible(false);
 
@@ -1125,7 +1251,7 @@ void Game::startgame()
     string liniapliku;
     int ktoralinia=0;
     short ile_linii = 15; // ilosc linii - 1
-    string napisy[ile_linii];
+    sf::String napisy[ile_linii+1];
 
     fstream plik2;
     plik2.open("Resources/Game/ciekawostki.data", ios::in);
@@ -1133,9 +1259,13 @@ void Game::startgame()
     if(plik2.good()==false)
         ErrorMsg("File not found, Check: 'Resources/Game/ciekawostki.data'","ERROR");
 
+    std::basic_string < sf::Uint32 > tmp[ile_linii+1];
+
     while (getline(plik2, liniapliku))
     {
-        napisy[ktoralinia] = liniapliku;
+        //str[ile] = linia;
+        sf::Utf8::toUtf32( liniapliku.begin(), liniapliku.end(), std::back_inserter( tmp[ktoralinia] ) );
+        napisy[ktoralinia] = tmp[ktoralinia];
         ktoralinia++;
     }
     plik2.close();
@@ -1224,14 +1354,28 @@ void Game::startgame()
     fall2.setVolume(30.f);
     fall3.setVolume(30.f);
 
-    hop.setVolume(30.f);
+    hop.setVolume(20.f);
     przejscie.setVolume(30.f);
 
     int ktoryfall = 0;
 
+    //////////////////
+    // Wielka platforma na poczatku sceny zeby nie spasc na glupi ryj
+
+    sf::RectangleShape FirstPlatform;
+    FirstPlatform.setFillColor(Color(87,65,47)); // Kolor brazowy
+    FirstPlatform.setPosition(100,500);
+    FirstPlatform.setSize(sf::Vector2f(600,10));
+
     while(state == GAMESTART)
     {
-        cout << "dy: " << dy << endl;
+        if (this->platforma == true && (FirstPlatform.getPosition().y <= (sPers.getPosition().y+sPers.getGlobalBounds().height))){
+            this->platforma = false;
+            dy = -15;
+        }
+
+
+        //cout << "dy: " << dy << endl;
         gift.setPosition(giftX,giftY);
 
         //cout << whichGift << endl;
@@ -1391,6 +1535,10 @@ void Game::startgame()
             zegar.restart();
         }
 
+        if (this->platforma == true && czas.asSeconds() > 2){
+            this->platforma = false;
+        }
+
         if (isGift == false){ // gdy prezentu nie ma na mapie
             if (drawciek == true){ // jezeli wyswietlona ciekawostka
                 if (czas.asSeconds() > 4){ // po trzech sekundach
@@ -1432,11 +1580,15 @@ void Game::startgame()
         {
             sPlat.setPosition(plat[i].x,plat[i].y);
             window.draw(sPlat);
-        }window.draw(audienceleft);
-
-        window.draw(sPers);
+        }
 
         window.draw(zycia[iloscZyc]);
+
+        if (this->platforma == true){
+            window.draw(FirstPlatform);
+        }
+
+        window.draw(sPers);
 
         window.draw(audienceleft);
         window.draw(audienceright);
@@ -1461,7 +1613,7 @@ void Game::gameOver()
 
     // TODO: Koncowy wynik (wyswietlic uzytkownikowi i dopisac do pliku txt)
     // state == GAMEOVER
-    Text title(Title,font,40);
+    Text title(L"Kopernik i Płaska Ziemia",font,40);
 	title.setStyle(Text::Bold);
 
 	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
@@ -1494,7 +1646,7 @@ void Game::gameOver()
     sf::Text gameover("<!Game Over!>",font,90);
     gameover.setPosition(szerokosc/2-gameover.getGlobalBounds().width/2,wysokosc/3-gameover.getGlobalBounds().height/2);
 
-    sf::Text tryagain("Ale mozesz sprobowac jeszcze raz...",font,30);
+    sf::Text tryagain(L"Ale możesz spróbowac jeszcze raz...",font,30);
     tryagain.setPosition(szerokosc/2-gameover.getGlobalBounds().width/3-10,tekst[0].getPosition().y-gameover.getGlobalBounds().height/2);
 
     gameover.setStyle(Text::Bold);
