@@ -54,12 +54,13 @@ protected:
 	GameState state;
 
 private:
+    bool dzwiek = true;
     bool przej = true;
     bool playmusic1 = true;
     bool zycia = true;
     bool platforma = true;
 
-    int backgroundY = -3650;
+    int backgroundY = -4080;
     short iloscZyc = 4;
     short trudnosc = 0;
 	sf::Font font;

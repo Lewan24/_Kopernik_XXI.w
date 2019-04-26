@@ -29,6 +29,7 @@
 #include <windows.h>
 #include <cstring>
 #include <SFML/Audio.hpp>
+#include <cstdio>
 
 #include "game.h"
 
@@ -39,11 +40,6 @@ short wysokosc = 600, szerokosc = 800;
 sf::Vector2i screenDimensions(szerokosc,wysokosc);
 sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), L"Kopernik i Płaska Ziemia",Style::Close);
 
-//TODO: Moze zamiast ciekawostek zrobic co jakis czas pytania o koperniku z wybraniej
-// odpowiedniej pozycji etc
-//TODO: Dodac cos jeszcze oprocz prezentow np, po drugiej cutscence zeby bylo
-// mozna zlapac cos jeszcze
-//TODO: Zamiast ziemi : slonce
 /*
     window.setMouseCursorVisible(false);
 
@@ -65,6 +61,23 @@ sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), L
 // gry, ilosc wysokich skokow np. po spacji, poziom trudnosci im ciezszy tym wiecej punktow sie dostaje
 // szybkosc dojscia do konca gry, ilosc zebranych ciekawostek o koperniku
 // TODO: Stworzyc przed ostatnia cutscenka tablice z koncowym wynikiem itd;
+
+string intToStr(int n)
+{
+     string tmp, ret;
+     if(n < 0) {
+      ret = "-";
+      n = -n;
+     }
+     do {
+      tmp += n % 10 + 48;
+      n -= n % 10;
+     }
+     while(n /= 10);
+     for(int i = tmp.size()-1; i >= 0; i--)
+      ret += tmp[i];
+     return ret;
+}
 
 Game::Game(void)
 {
@@ -247,7 +260,7 @@ void Game::greetings()
 
 void Game::menu()
 {
-    this->backgroundY = -3650;
+    this->backgroundY = -4080;
     this->przej = true;
     this->playmusic1 = true;
     this->zycia = true;
@@ -267,11 +280,11 @@ void Game::menu()
 
 	sf::Sprite cursor(cursorTexture);
 /////////////////////////////////////////////////////////////////////////////
-	const int ile = 4;
+	const int ile = 6;
 
 	Text tekst[ile];
 
-	string str[] = {"Rozpocznij","Dodatki","Zamknij","Porady"};
+	sf::String str[] = {"Rozpocznij","Dodatki","Zamknij","Porady",L"Dźwięk: ", "Wł."};
 	for(int i=0;i<ile;i++)
 	{
 		tekst[i].setFont(font);
@@ -282,9 +295,16 @@ void Game::menu()
 	}
 ///////////////////////////////////////////////////////////////////////////////////
     tekst[3].setPosition(5,wysokosc-tekst[3].getGlobalBounds().height-30);
+    tekst[4].setPosition(szerokosc-tekst[4].getGlobalBounds().width-120,wysokosc-tekst[4].getGlobalBounds().height-36);
+    tekst[5].setPosition(szerokosc-tekst[5].getGlobalBounds().width,wysokosc-tekst[5].getGlobalBounds().height-35);
+    tekst[5].setCharacterSize(60);
 
 	while(state == MENU)
 	{
+	    if (this->dzwiek == true)
+            tekst[5].setString(L"Wł.");
+        else tekst[5].setString(L"Wył.");
+
 		Vector2f mouse(Mouse::getPosition(window));
 		Event event;
 
@@ -316,10 +336,17 @@ void Game::menu()
 			{
 				state = HINTS;
 			}
+			else if(tekst[4].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+			{
+				if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+			}
 			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
 		}
-		for(int i=0;i<ile;i++)
+		for(int i=0;i<ile-1;i++)
 			if(tekst[i].getGlobalBounds().contains(mouse))
 				tekst[i].setFillColor(Color::Cyan); // when you will move your mouse on button
 			else tekst[i].setFillColor(Color::White);
@@ -372,7 +399,7 @@ void Game::hints()
 
     string linia;
     int ile=0;
-    short ilosc_linii = 11; // ilosc linii - 1
+    short ilosc_linii = 14; // ilosc linii - 1
     sf::String str[ilosc_linii+1];
 
     fstream plik;
@@ -679,19 +706,20 @@ void Game::cut1(){
     mumbling1.openFromFile("Resources/Game/Music/mumbling.ogg");
     mumbling2.openFromFile("Resources/Game/Music/mumbling2.wav");
 
-    mumbling1.setVolume(50.f);
-    mumbling2.setVolume(50.f);
-
     mumbling1.setLoop(false);
     mumbling2.setLoop(false);
 
 
     int ktorymumbling = rand()%2;
 
-    if (ktorymumbling == 0)
-        mumbling1.play();
-    else mumbling2.play();
+    if(this->dzwiek == true){
+        mumbling1.setVolume(50.f);
+        mumbling2.setVolume(50.f);
 
+        if (ktorymumbling == 0)
+            mumbling1.play();
+        else mumbling2.play();
+    }
 
 	while(state == CUT1)
 	{
@@ -727,7 +755,7 @@ void Game::cut1(){
 
         //std::cout << cos << endl;
 
-        if (czas.asSeconds() > 0.5){
+        if (czas.asSeconds() > 0.25){
             cos++;
             if (cos > ilosc_linii)
                 cos = cos-1;
@@ -768,7 +796,7 @@ void Game::cut4(){
 //////////////////////////////////////////////////////////////////////////////
     string linia;
     int ile=0;
-    short ilosc_linii = 6; // ilosc linii - 1
+    short ilosc_linii = 15; // ilosc linii - 1
     sf::String str[ilosc_linii+1];
 
     fstream plik;
@@ -818,18 +846,20 @@ void Game::cut4(){
     mumbling1.openFromFile("Resources/Game/Music/mumbling.ogg");
     mumbling2.openFromFile("Resources/Game/Music/mumbling2.wav");
 
-    mumbling1.setVolume(50.f);
-    mumbling2.setVolume(50.f);
-
     mumbling1.setLoop(false);
     mumbling2.setLoop(false);
 
 
     int ktorymumbling = rand()%2;
 
-    if (ktorymumbling == 0)
-        mumbling1.play();
-    else mumbling2.play();
+    if(this->dzwiek == true){
+        mumbling1.setVolume(50.f);
+        mumbling2.setVolume(50.f);
+
+        if (ktorymumbling == 0)
+            mumbling1.play();
+        else mumbling2.play();
+    }
 
 	while(state == CUT4)
 	{
@@ -852,7 +882,7 @@ void Game::cut4(){
 
         //std::cout << cos << endl;
 
-        if (czas.asSeconds() > 0.5){
+        if (czas.asSeconds() > 0.25){
             cos++;
             if (cos > ilosc_linii)
                 cos = cos-1;
@@ -893,7 +923,7 @@ void Game::cut3(){
 //////////////////////////////////////////////////////////////////////////////
     string linia;
     int ile=0;
-    short ilosc_linii = 13; // ilosc linii - 1
+    short ilosc_linii = 11; // ilosc linii - 1
     sf::String str[ilosc_linii+1];
 
     fstream plik;
@@ -943,18 +973,20 @@ void Game::cut3(){
     mumbling1.openFromFile("Resources/Game/Music/mumbling.ogg");
     mumbling2.openFromFile("Resources/Game/Music/mumbling2.wav");
 
-    mumbling1.setVolume(50.f);
-    mumbling2.setVolume(50.f);
-
     mumbling1.setLoop(false);
     mumbling2.setLoop(false);
 
 
     int ktorymumbling = rand()%2;
 
-    if (ktorymumbling == 0)
-        mumbling1.play();
-    else mumbling2.play();
+    if(this->dzwiek == true){
+        mumbling1.setVolume(50.f);
+        mumbling2.setVolume(50.f);
+
+        if (ktorymumbling == 0)
+            mumbling1.play();
+        else mumbling2.play();
+    }
 
 	while(state == CUT3)
 	{
@@ -983,7 +1015,7 @@ void Game::cut3(){
 
         //std::cout << cos << endl;
 
-        if (czas.asSeconds() > 0.5){
+        if (czas.asSeconds() > 0.3){
             cos++;
             if (cos > ilosc_linii)
                 cos = cos-1;
@@ -1026,7 +1058,7 @@ void Game::cut2(){
 //////////////////////////////////////////////////////////////////////////////
     string linia;
     int ile=0;
-    short ilosc_linii = 12; // ilosc linii - 1
+    short ilosc_linii = 9; // ilosc linii - 1
     sf::String str[ilosc_linii+1];
 
     fstream plik;
@@ -1076,18 +1108,20 @@ void Game::cut2(){
     mumbling1.openFromFile("Resources/Game/Music/mumbling.ogg");
     mumbling2.openFromFile("Resources/Game/Music/mumbling2.wav");
 
-    mumbling1.setVolume(50.f);
-    mumbling2.setVolume(50.f);
-
     mumbling1.setLoop(false);
     mumbling2.setLoop(false);
 
 
     int ktorymumbling = rand()%2;
 
-    if (ktorymumbling == 0)
-        mumbling1.play();
-    else mumbling2.play();
+    if(this->dzwiek == true){
+        mumbling1.setVolume(50.f);
+        mumbling2.setVolume(50.f);
+
+        if (ktorymumbling == 0)
+            mumbling1.play();
+        else mumbling2.play();
+    }
 
 	while(state == CUT2)
 	{
@@ -1119,7 +1153,7 @@ void Game::cut2(){
 
         //std::cout << cos << endl;
 
-        if (czas.asSeconds() > 0.5){
+        if (czas.asSeconds() > 0.3){
             cos++;
             if (cos > ilosc_linii)
                 cos = cos-1;
@@ -1147,6 +1181,10 @@ struct point
 
 void Game::startgame()
 {
+    //TODO: Zrobic aby ciekawostki sie nie powtarzaly
+    //TODO: Lektor do ciekawostek
+    //TODO: Nowe Ciekawostki dodac
+
     gameUpdate(zycia);
 
     window.setMouseCursorVisible(false);
@@ -1160,9 +1198,9 @@ void Game::startgame()
 
     srand(time(0));
 
-    Texture t1,platform1,platform2,platform3,t3,t4,doodle3,doodle4;
-    if (!t1.loadFromFile("Resources/Textures/background.png"))
-        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/background.png'","ERROR");
+    Texture platform1,platform2,platform3,t3,t4,doodle3,doodle4;
+    /*if (!t1.loadFromFile("Resources/Textures/background.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/background.png'","ERROR");*/
     if (!platform1.loadFromFile("Resources/Textures/platform1.png"))
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/platform1.png'","ERROR");
     if (!platform2.loadFromFile("Resources/Textures/platform2.png"))
@@ -1178,7 +1216,21 @@ void Game::startgame()
     if (!doodle4.loadFromFile("Resources/Textures/doodle4.png"))
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/doodle4.png'","ERROR");
 
-    sf::Sprite sBackground(t1), sPlat(platform1);
+    int howmany = 37;
+    sf::Texture bgTexture[howmany];
+    sf::String jakisstring[howmany];
+
+    for(int i = 0; i < howmany; i++){
+        jakisstring[i] = std::string("Resources/Game/frames/frame")+intToStr(i+1)+".png";
+
+        if (!bgTexture[i].loadFromFile(jakisstring[i]))
+            ErrorMsg("Hmm... Brakuje textury! Sprawdz czy masz wszystkie w 'Resources/Game/frames/'","ERROR");
+    }
+    int ktoratextura = 0;
+    sf::Sprite sBackground(bgTexture[0]);
+    // sBackground(t1),
+
+    sf::Sprite sPlat(platform1);
     sf::Sprite sPers(t3);
 
     sBackground.setPosition(200, backgroundY);
@@ -1297,7 +1349,7 @@ void Game::startgame()
 
     ///////////////////////////////
     // Muzyka
-
+    float volume = 30.f;
 
     sf::Music soundtrack, soundtrack2;
     if(!soundtrack.openFromFile("Resources/Game/Music/GameSoundTrack2.ogg"))
@@ -1306,9 +1358,10 @@ void Game::startgame()
         ErrorMsg("hmm... Chyba brakuje dzwiekow, Sprawdz: Resources/Game/Music/GameSoundTrack3.ogg","ERROR");
 
     soundtrack.setLoop(false);
-    soundtrack.setVolume(15.f);
     soundtrack2.setLoop(false);
-    soundtrack2.setVolume(15.f);
+
+    soundtrack.setVolume(volume/2);
+    soundtrack2.setVolume(volume/2);
 
     if (playmusic1 == true)
         soundtrack.play();
@@ -1350,12 +1403,12 @@ void Game::startgame()
     hop.setLoop(false);
     przejscie.setLoop(false);
 
-    fall1.setVolume(30.f);
-    fall2.setVolume(30.f);
-    fall3.setVolume(30.f);
+    fall1.setVolume(volume);
+    fall2.setVolume(volume);
+    fall3.setVolume(volume);
 
-    hop.setVolume(20.f);
-    przejscie.setVolume(30.f);
+    hop.setVolume(volume-10.f);
+    przejscie.setVolume(volume);
 
     int ktoryfall = 0;
 
@@ -1363,12 +1416,33 @@ void Game::startgame()
     // Wielka platforma na poczatku sceny zeby nie spasc na glupi ryj
 
     sf::RectangleShape FirstPlatform;
-    FirstPlatform.setFillColor(Color(87,65,47)); // Kolor brazowy
+    if (this->backgroundY >= -2150)
+        FirstPlatform.setFillColor(Color::Blue);
+    else    FirstPlatform.setFillColor(Color(87,65,47)); // Kolor brazowy
+
     FirstPlatform.setPosition(100,500);
     FirstPlatform.setSize(sf::Vector2f(600,10));
 
+    //sf::Time BackGroundTime = clock.getElapsedTime();
+
     while(state == GAMESTART)
     {
+        if (ktoratextura >= howmany) // ilosc obrazkow
+            ktoratextura = 0; //zerowanie // powrot do pierwszej klatki
+
+        if(this->dzwiek == true)
+            volume = 30.f;
+        else    volume = NULL;
+
+        fall1.setVolume(volume);
+        fall2.setVolume(volume);
+        fall3.setVolume(volume);
+
+        hop.setVolume(volume-10.f);
+        przejscie.setVolume(volume);
+        soundtrack.setVolume(volume/2);
+        soundtrack2.setVolume(volume/2);
+
         if (this->platforma == true && (FirstPlatform.getPosition().y <= (sPers.getPosition().y+sPers.getGlobalBounds().height))){
             this->platforma = false;
             dy = -15;
@@ -1402,6 +1476,11 @@ void Game::startgame()
                 console();
                 sBackground.setPosition(200,this->backgroundY);
             }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
         }
 
         if (sBackground.getPosition().y < -2200 && sBackground.getPosition().y > -2205){
@@ -1409,7 +1488,7 @@ void Game::startgame()
             this->playmusic1 = false;
             state = CUT2;
         }
-        else if (sBackground.getPosition().y > 100){
+        else if (sBackground.getPosition().y > 200){
             soundtrack2.stop();
             state = CUT3;
         }
@@ -1437,11 +1516,13 @@ void Game::startgame()
 
                 ktoryfall = rand()%3;
 
-                if (ktoryfall == 0)
-                    fall1.play();
-                else if (ktoryfall == 1)
-                    fall2.play();
-                else    fall3.play();
+                if(this->dzwiek == true){
+                    if (ktoryfall == 0)
+                        fall1.play();
+                    else if (ktoryfall == 1)
+                        fall2.play();
+                    else    fall3.play();
+                }
             }
         }
 
@@ -1478,7 +1559,9 @@ void Game::startgame()
                 x = x + sPers.getScale().x + 400;
 
                 if(this->przej == true){
-                    przejscie.play();
+                    if(this->dzwiek == true)
+                        przejscie.play();
+
                     this->przej = false;
                 }
             }
@@ -1495,7 +1578,9 @@ void Game::startgame()
                 x = 200;
 
                 if(this->przej == true){
-                    przejscie.play();
+                    if(this->dzwiek == true)
+                        przejscie.play();
+
                     this->przej = false;
                 }
 
@@ -1508,7 +1593,7 @@ void Game::startgame()
                 if ((x+50>plat[i].x) && (x+20<plat[i].x+68)
                 && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dy>0)){
                     dy=-15;
-                    hop.play();
+                    if(this->dzwiek == true)    hop.play();
                 }
 
             if (dy > 0 && dy < 1) sBackground.move(0,-5);
@@ -1520,7 +1605,7 @@ void Game::startgame()
                 if ((x+50>plat[i].x) && (x+20<plat[i].x+68)
                 && (y+70>plat[i].y) && (y+70<plat[i].y+14) && (dy>0)){
                     dy=-10;
-                    hop.play();
+                    if(this->dzwiek == true)    hop.play();
                 }
         }
 
@@ -1610,8 +1695,6 @@ void Game::startgame()
 
 void Game::gameOver()
 {
-
-    // TODO: Koncowy wynik (wyswietlic uzytkownikowi i dopisac do pliku txt)
     // state == GAMEOVER
     Text title(L"Kopernik i Płaska Ziemia",font,40);
 	title.setStyle(Text::Bold);
@@ -1646,7 +1729,7 @@ void Game::gameOver()
     sf::Text gameover("<!Game Over!>",font,90);
     gameover.setPosition(szerokosc/2-gameover.getGlobalBounds().width/2,wysokosc/3-gameover.getGlobalBounds().height/2);
 
-    sf::Text tryagain(L"Ale możesz spróbowac jeszcze raz...",font,30);
+    sf::Text tryagain(L"Ale możesz spróbować jeszcze raz...",font,30);
     tryagain.setPosition(szerokosc/2-gameover.getGlobalBounds().width/3-10,tekst[0].getPosition().y-gameover.getGlobalBounds().height/2);
 
     gameover.setStyle(Text::Bold);
