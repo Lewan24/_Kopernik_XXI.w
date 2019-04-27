@@ -1428,6 +1428,7 @@ void Game::startgame()
     sf::SoundBuffer sfall1, sfall2, sfall3;
     sf::SoundBuffer shop;
     sf::SoundBuffer sprzejscie;
+
     if(!sfall1.loadFromFile("Resources/Game/Music/fall.wav"))
         ErrorMsg("hmm... Chyba brakuje dzwieku! Sprawdz: Resources/Game/Music/fall.wav", "ERROR");
     if(!sfall2.loadFromFile("Resources/Game/Music/fall2.wav"))
@@ -1688,46 +1689,46 @@ void Game::startgame()
             this->platforma = false;
         }
 
-        if (czas.asMilliseconds() > 50 && czas.asMilliseconds() < 55 || czas.asMilliseconds() > 100 && czas.asMilliseconds() < 105 ||
-            czas.asMilliseconds() > 150 && czas.asMilliseconds() < 155 || czas.asMilliseconds() > 200 && czas.asMilliseconds() < 205 ||
-            czas.asMilliseconds() > 250 && czas.asMilliseconds() < 255 || czas.asMilliseconds() > 300 && czas.asMilliseconds() < 305 ||
-            czas.asMilliseconds() > 350 && czas.asMilliseconds() < 355 || czas.asMilliseconds() > 400 && czas.asMilliseconds() < 405 ||
-            czas.asMilliseconds() > 450 && czas.asMilliseconds() < 455 || czas.asMilliseconds() > 500 && czas.asMilliseconds() < 505 ||
-            czas.asMilliseconds() > 550 && czas.asMilliseconds() < 555 || czas.asMilliseconds() > 600 && czas.asMilliseconds() < 605 ||
-            czas.asMilliseconds() > 650 && czas.asMilliseconds() < 655 || czas.asMilliseconds() > 700 && czas.asMilliseconds() < 705 ||
-            czas.asMilliseconds() > 750 && czas.asMilliseconds() < 705 || czas.asMilliseconds() > 800 && czas.asMilliseconds() < 805 ||
-            czas.asMilliseconds() > 850 && czas.asMilliseconds() < 855 || czas.asMilliseconds() > 900 && czas.asMilliseconds() < 905 ||
-            czas.asMilliseconds() > 950 && czas.asMilliseconds() < 955 || czas.asMilliseconds() > 1000 && czas.asMilliseconds() < 1005 ||
-            czas.asMilliseconds() > 1050 && czas.asMilliseconds() < 1055 || czas.asMilliseconds() > 1100 && czas.asMilliseconds() < 1105 ||
-            czas.asMilliseconds() > 1150 && czas.asMilliseconds() < 1155 || czas.asMilliseconds() > 1200 && czas.asMilliseconds() < 1205 ||
-            czas.asMilliseconds() > 1250 && czas.asMilliseconds() < 1255 || czas.asMilliseconds() > 1300 && czas.asMilliseconds() < 1305 ||
-            czas.asMilliseconds() > 1350 && czas.asMilliseconds() < 1355 || czas.asMilliseconds() > 1400 && czas.asMilliseconds() < 1405 ||
-            czas.asMilliseconds() > 1450 && czas.asMilliseconds() < 1455 || czas.asMilliseconds() > 1500 && czas.asMilliseconds() < 1505 ||
-            czas.asMilliseconds() > 1550 && czas.asMilliseconds() < 1555 || czas.asMilliseconds() > 1600 && czas.asMilliseconds() < 1605 ||
-            czas.asMilliseconds() > 1650 && czas.asMilliseconds() < 1655 || czas.asMilliseconds() > 1700 && czas.asMilliseconds() < 1705 ||
-            czas.asMilliseconds() > 1750 && czas.asMilliseconds() < 1755 || czas.asMilliseconds() > 1800 && czas.asMilliseconds() < 1805 ||
-            czas.asMilliseconds() > 1850 && czas.asMilliseconds() < 1855 || czas.asMilliseconds() > 1900 && czas.asMilliseconds() < 1905 ||
-            czas.asMilliseconds() > 1950 && czas.asMilliseconds() < 1955 || czas.asMilliseconds() > 2000 && czas.asMilliseconds() < 2005 ||
-            czas.asMilliseconds() > 2050 && czas.asMilliseconds() < 2055 || czas.asMilliseconds() > 2100 && czas.asMilliseconds() < 2105 ||
-            czas.asMilliseconds() > 2150 && czas.asMilliseconds() < 2155 || czas.asMilliseconds() > 2200 && czas.asMilliseconds() < 2205 ||
-            czas.asMilliseconds() > 2250 && czas.asMilliseconds() < 2255 || czas.asMilliseconds() > 2300 && czas.asMilliseconds() < 2305 ||
-            czas.asMilliseconds() > 2350 && czas.asMilliseconds() < 2355 || czas.asMilliseconds() > 2400 && czas.asMilliseconds() < 2400 ||
-            czas.asMilliseconds() > 2450 && czas.asMilliseconds() < 2455 || czas.asMilliseconds() > 2500 && czas.asMilliseconds() < 2505 ||
-            czas.asMilliseconds() > 2550 && czas.asMilliseconds() < 2555 || czas.asMilliseconds() > 2600 && czas.asMilliseconds() < 2605 ||
-            czas.asMilliseconds() > 2650 && czas.asMilliseconds() < 2655 || czas.asMilliseconds() > 2700 && czas.asMilliseconds() < 2705 ||
-            czas.asMilliseconds() > 2750 && czas.asMilliseconds() < 2755 || czas.asMilliseconds() > 2800 && czas.asMilliseconds() < 2805 ||
-            czas.asMilliseconds() > 2850 && czas.asMilliseconds() < 2855 || czas.asMilliseconds() > 2900 && czas.asMilliseconds() < 2905 ||
-            czas.asMilliseconds() > 2950 && czas.asMilliseconds() < 2955 || czas.asMilliseconds() > 3000 && czas.asMilliseconds() < 3005 ||
-            czas.asMilliseconds() > 3050 && czas.asMilliseconds() < 3055 || czas.asMilliseconds() > 3100 && czas.asMilliseconds() < 3105 ||
-            czas.asMilliseconds() > 3150 && czas.asMilliseconds() < 3155 || czas.asMilliseconds() > 3200 && czas.asMilliseconds() < 3205 ||
-            czas.asMilliseconds() > 3250 && czas.asMilliseconds() < 3255 || czas.asMilliseconds() > 3300 && czas.asMilliseconds() < 3305 ||
-            czas.asMilliseconds() > 3350 && czas.asMilliseconds() < 3355 || czas.asMilliseconds() > 3400 && czas.asMilliseconds() < 3405 ||
-            czas.asMilliseconds() > 3450 && czas.asMilliseconds() < 3455 || czas.asMilliseconds() > 3500 && czas.asMilliseconds() < 3505 ||
-            czas.asMilliseconds() > 3550 && czas.asMilliseconds() < 3555 || czas.asMilliseconds() > 3600 && czas.asMilliseconds() < 3605 ||
-            czas.asMilliseconds() > 3650 && czas.asMilliseconds() < 3655 || czas.asMilliseconds() > 3700 && czas.asMilliseconds() < 3705 ||
-            czas.asMilliseconds() > 3750 && czas.asMilliseconds() < 3755 || czas.asMilliseconds() > 3800 && czas.asMilliseconds() < 3805 ||
-            czas.asMilliseconds() > 3850 && czas.asMilliseconds() < 3855 || czas.asMilliseconds() > 3900 && czas.asMilliseconds() < 3905 ||
-            czas.asMilliseconds() > 3950 && czas.asMilliseconds() < 3955 || czas.asMilliseconds() > 4000 && czas.asMilliseconds() < 4005){ // zmiana klatki co 50 milisekund
+        if ((czas.asMilliseconds() > 50 && czas.asMilliseconds() < 55) || (czas.asMilliseconds() > 100 && czas.asMilliseconds() < 105) ||
+            (czas.asMilliseconds() > 150 && czas.asMilliseconds() < 155) || (czas.asMilliseconds() > 200 && czas.asMilliseconds() < 205) ||
+            (czas.asMilliseconds() > 250 && czas.asMilliseconds() < 255) || (czas.asMilliseconds() > 300 && czas.asMilliseconds() < 305) ||
+            (czas.asMilliseconds() > 350 && czas.asMilliseconds() < 355) || (czas.asMilliseconds() > 400 && czas.asMilliseconds() < 405) ||
+            (czas.asMilliseconds() > 450 && czas.asMilliseconds() < 455) || (czas.asMilliseconds() > 500 && czas.asMilliseconds() < 505) ||
+            (czas.asMilliseconds() > 550 && czas.asMilliseconds() < 555) || (czas.asMilliseconds() > 600 && czas.asMilliseconds() < 605) ||
+            (czas.asMilliseconds() > 650 && czas.asMilliseconds() < 655) || (czas.asMilliseconds() > 700 && czas.asMilliseconds() < 705) ||
+            (czas.asMilliseconds() > 750 && czas.asMilliseconds() < 755) || (czas.asMilliseconds() > 800 && czas.asMilliseconds() < 805) ||
+            (czas.asMilliseconds() > 850 && czas.asMilliseconds() < 855) || (czas.asMilliseconds() > 900 && czas.asMilliseconds() < 905) ||
+            (czas.asMilliseconds() > 950 && czas.asMilliseconds() < 955) || (czas.asMilliseconds() > 1000 && czas.asMilliseconds() < 1005) ||
+            (czas.asMilliseconds() > 1050 && czas.asMilliseconds() < 1055) || (czas.asMilliseconds() > 1100 && czas.asMilliseconds() < 1105) ||
+            (czas.asMilliseconds() > 1150 && czas.asMilliseconds() < 1155) || (czas.asMilliseconds() > 1200 && czas.asMilliseconds() < 1205) ||
+            (czas.asMilliseconds() > 1250 && czas.asMilliseconds() < 1255) || (czas.asMilliseconds() > 1300 && czas.asMilliseconds() < 1305) ||
+            (czas.asMilliseconds() > 1350 && czas.asMilliseconds() < 1355) || (czas.asMilliseconds() > 1400 && czas.asMilliseconds() < 1405) ||
+            (czas.asMilliseconds() > 1450 && czas.asMilliseconds() < 1455) || (czas.asMilliseconds() > 1500 && czas.asMilliseconds() < 1505) ||
+            (czas.asMilliseconds() > 1550 && czas.asMilliseconds() < 1555) || (czas.asMilliseconds() > 1600 && czas.asMilliseconds() < 1605) ||
+            (czas.asMilliseconds() > 1650 && czas.asMilliseconds() < 1655) || (czas.asMilliseconds() > 1700 && czas.asMilliseconds() < 1705) ||
+            (czas.asMilliseconds() > 1750 && czas.asMilliseconds() < 1755) || (czas.asMilliseconds() > 1800 && czas.asMilliseconds() < 1805) ||
+            (czas.asMilliseconds() > 1850 && czas.asMilliseconds() < 1855) || (czas.asMilliseconds() > 1900 && czas.asMilliseconds() < 1905) ||
+            (czas.asMilliseconds() > 1950 && czas.asMilliseconds() < 1955) || (czas.asMilliseconds() > 2000 && czas.asMilliseconds() < 2005) ||
+            (czas.asMilliseconds() > 2050 && czas.asMilliseconds() < 2055) || (czas.asMilliseconds() > 2100 && czas.asMilliseconds() < 2105) ||
+            (czas.asMilliseconds() > 2150 && czas.asMilliseconds() < 2155) || (czas.asMilliseconds() > 2200 && czas.asMilliseconds() < 2205) ||
+            (czas.asMilliseconds() > 2250 && czas.asMilliseconds() < 2255) || (czas.asMilliseconds() > 2300 && czas.asMilliseconds() < 2305) ||
+            (czas.asMilliseconds() > 2350 && czas.asMilliseconds() < 2355) || (czas.asMilliseconds() > 2400 && czas.asMilliseconds() < 2400) ||
+            (czas.asMilliseconds() > 2450 && czas.asMilliseconds() < 2455) || (czas.asMilliseconds() > 2500 && czas.asMilliseconds() < 2505) ||
+            (czas.asMilliseconds() > 2550 && czas.asMilliseconds() < 2555) || (czas.asMilliseconds() > 2600 && czas.asMilliseconds() < 2605) ||
+            (czas.asMilliseconds() > 2650 && czas.asMilliseconds() < 2655) || (czas.asMilliseconds() > 2700 && czas.asMilliseconds() < 2705) ||
+            (czas.asMilliseconds() > 2750 && czas.asMilliseconds() < 2755) || (czas.asMilliseconds() > 2800 && czas.asMilliseconds() < 2805) ||
+            (czas.asMilliseconds() > 2850 && czas.asMilliseconds() < 2855) || (czas.asMilliseconds() > 2900 && czas.asMilliseconds() < 2905) ||
+            (czas.asMilliseconds() > 2950 && czas.asMilliseconds() < 2955) || (czas.asMilliseconds() > 3000 && czas.asMilliseconds() < 3005) ||
+            (czas.asMilliseconds() > 3050 && czas.asMilliseconds() < 3055) || (czas.asMilliseconds() > 3100 && czas.asMilliseconds() < 3105) ||
+            (czas.asMilliseconds() > 3150 && czas.asMilliseconds() < 3155) || (czas.asMilliseconds() > 3200 && czas.asMilliseconds() < 3205) ||
+            (czas.asMilliseconds() > 3250 && czas.asMilliseconds() < 3255) || (czas.asMilliseconds() > 3300 && czas.asMilliseconds() < 3305) ||
+            (czas.asMilliseconds() > 3350 && czas.asMilliseconds() < 3355) || (czas.asMilliseconds() > 3400 && czas.asMilliseconds() < 3405) ||
+            (czas.asMilliseconds() > 3450 && czas.asMilliseconds() < 3455) || (czas.asMilliseconds() > 3500 && czas.asMilliseconds() < 3505) ||
+            (czas.asMilliseconds() > 3550 && czas.asMilliseconds() < 3555) || (czas.asMilliseconds() > 3600 && czas.asMilliseconds() < 3605) ||
+            (czas.asMilliseconds() > 3650 && czas.asMilliseconds() < 3655) || (czas.asMilliseconds() > 3700 && czas.asMilliseconds() < 3705) ||
+            (czas.asMilliseconds() > 3750 && czas.asMilliseconds() < 3755) || (czas.asMilliseconds() > 3800 && czas.asMilliseconds() < 3805) ||
+            (czas.asMilliseconds() > 3850 && czas.asMilliseconds() < 3855) || (czas.asMilliseconds() > 3900 && czas.asMilliseconds() < 3905) ||
+            (czas.asMilliseconds() > 3950 && czas.asMilliseconds() < 3955) || (czas.asMilliseconds() > 4000 && czas.asMilliseconds() < 4005)){ // zmiana klatki co 50 milisekund
             sBackground.setTexture(bgTexture[ktoratextura]);
             ktoratextura++;
         }

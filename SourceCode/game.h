@@ -42,7 +42,7 @@ public:
 	Game(void);  // konstruktor
 	~Game(void);    // destruktor
 
-    short ile_linii = 14;
+    short ile_linii = 21;
 
     int howmany = 37; // ilosc klatek
     sf::Texture bgTexture[37];
@@ -62,7 +62,7 @@ protected:
 private:
     bool loading = true;
 
-    bool ciekawostki[14] = {false}; // ilosc linii w ciekawostkach - 1
+    bool ciekawostki[21] = {false}; // ilosc linii w ciekawostkach - 1
 
     bool dzwiek = true;
     bool przej = true;
