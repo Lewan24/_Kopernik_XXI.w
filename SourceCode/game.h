@@ -42,6 +42,8 @@ public:
 	Game(void);  // konstruktor
 	~Game(void);    // destruktor
 
+    short ile_linii = 14;
+
 	void runGame();
 	void gameUpdate(bool);
 	void help();
@@ -54,6 +56,8 @@ protected:
 	GameState state;
 
 private:
+    bool ciekawostki[14] = {false}; // ilosc linii w ciekawostkach - 1
+
     bool dzwiek = true;
     bool przej = true;
     bool playmusic1 = true;

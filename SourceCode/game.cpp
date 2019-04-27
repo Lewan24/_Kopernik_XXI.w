@@ -265,6 +265,8 @@ void Game::menu()
     this->playmusic1 = true;
     this->zycia = true;
     this->platforma = true;
+    for (int i = 0; i < this->ile_linii; i++)
+        this->ciekawostki[i] = false;
 
 	Text title(L"Kopernik i Płaska Ziemia",font,80);
 	title.setStyle(Text::Bold);
@@ -1181,11 +1183,16 @@ struct point
 
 void Game::startgame()
 {
-    //TODO: Zrobic aby ciekawostki sie nie powtarzaly
     //TODO: Lektor do ciekawostek
     //TODO: Nowe Ciekawostki dodac
 
+    cout << "Updating Game..." << endl;
+
     gameUpdate(zycia);
+
+    cout << "Game Updated" << endl;
+
+    cout << "Loading Cursor Theme..." << endl;
 
     window.setMouseCursorVisible(false);
 
@@ -1195,11 +1202,14 @@ void Game::startgame()
         ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
 
 	sf::Sprite cursor(cursorTexture);
-
+    cout << "Cursor Loaded" << endl;
     srand(time(0));
 
+    cout << "Loading Basic Textures..." << endl;
+
     Texture platform1,platform2,platform3,t3,t4,doodle3,doodle4;
-    /*if (!t1.loadFromFile("Resources/Textures/background.png"))
+    /*Texture t1;
+    if (!t1.loadFromFile("Resources/Textures/background.png"))
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/background.png'","ERROR");*/
     if (!platform1.loadFromFile("Resources/Textures/platform1.png"))
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/platform1.png'","ERROR");
@@ -1216,6 +1226,9 @@ void Game::startgame()
     if (!doodle4.loadFromFile("Resources/Textures/doodle4.png"))
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/doodle4.png'","ERROR");
 
+    cout << "Basic Textures Loaded" << endl;
+    cout << "Loading Background Textures..." << endl;
+
     int howmany = 37;
     sf::Texture bgTexture[howmany];
     sf::String jakisstring[howmany];
@@ -1225,15 +1238,22 @@ void Game::startgame()
 
         if (!bgTexture[i].loadFromFile(jakisstring[i]))
             ErrorMsg("Hmm... Brakuje textury! Sprawdz czy masz wszystkie w 'Resources/Game/frames/'","ERROR");
+
+        cout << std::string("Frame ") + intToStr(i+1) +"/"+intToStr(howmany) + " Loaded" << endl;
     }
+
+    cout << "Background Textures Loaded" << endl;
+
     int ktoratextura = 0;
     sf::Sprite sBackground(bgTexture[0]);
-    // sBackground(t1),
+    //sf::Sprite sBackground(t1);
 
     sf::Sprite sPlat(platform1);
     sf::Sprite sPers(t3);
 
     sBackground.setPosition(200, backgroundY);
+
+    cout << "Loading Audience Textures..." << endl;
 
     sf::Texture audience1, audience2;
 
@@ -1241,6 +1261,8 @@ void Game::startgame()
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/audience.png'","ERROR");
     if (!audience2.loadFromFile("Resources/Textures/audience2.png"))
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/audience2.png'","ERROR");
+
+    cout << "Audience Textures Loaded" << endl;
 
     sf::Sprite audienceleft, audienceright;
 
@@ -1266,6 +1288,7 @@ void Game::startgame()
     //sf::Text zycia0("Lives: 0",font,30), zycia1("Lives: 1",font,30), zycia2("Lives: 2",font,30), zycia3("Lives: 3",font,30);
     sf::Text zycia[ile];
 
+    cout << "Loading Lives..." << endl;
 
     const short ile2 = 11; // ustalam wieklosc tablicy; zawsze ma byc o 1 wieksza od max liczby w tablicy
     string zyciastr[ile2] = {"0","1","2","3","4","5","6","7","8","9","10"}; // max 10 zyc
@@ -1285,9 +1308,14 @@ void Game::startgame()
         zycia[i].setStyle(Text::Bold);
     }
 
+    cout << "Lives Loaded" << endl;
+    cout << "Loading Gift Textures..." << endl;
+
     sf::Texture giftTexture;
     if(!giftTexture.loadFromFile("Resources/Textures/gift.png"))
         ErrorMsg("hmm... Brakuje Textury! Sprawdz: Resources/Textures/gift.png","ERROR");
+
+    cout << "Gift Texture Loaded" << endl;
 
     sf::Sprite gift;
     gift.setTexture(giftTexture);
@@ -1295,23 +1323,35 @@ void Game::startgame()
 
     bool isGift = false;
 
+    cout << "Loading Clock/Time..." << endl;
+
     sf::Clock zegar;
     sf::Time czas;
 
     zegar.restart();
 
+    cout << "Main Clock/Time Loaded" << endl;
+
     string liniapliku;
     int ktoralinia=0;
-    short ile_linii = 15; // ilosc linii - 1
+    //short ile_linii = 14; // ilosc linii - 1
     sf::String napisy[ile_linii+1];
+
+    cout << "Opening File" << endl;
 
     fstream plik2;
     plik2.open("Resources/Game/ciekawostki.data", ios::in);
 
+    cout << "File Opened" << endl;
+
     if(plik2.good()==false)
         ErrorMsg("File not found, Check: 'Resources/Game/ciekawostki.data'","ERROR");
 
+    cout << "File Loaded" << endl;
+
     std::basic_string < sf::Uint32 > tmp[ile_linii+1];
+
+    cout << "Loading Texts..." << endl;
 
     while (getline(plik2, liniapliku))
     {
@@ -1320,7 +1360,13 @@ void Game::startgame()
         napisy[ktoralinia] = tmp[ktoralinia];
         ktoralinia++;
     }
+    cout << "Texts Loaded" << endl;
+
     plik2.close();
+
+    cout << "File Closed" << endl;
+    cout << "Loading Curiosities..." << endl;
+
     //cout << "Tu jestem!" << endl;
 	sf::Text ciekawostka[ktoralinia];
 
@@ -1334,6 +1380,8 @@ void Game::startgame()
 		ciekawostka[i].setFillColor(Color::White);
 		ciekawostka[i].setStyle(Text::Bold);
 	}
+
+    cout << "Curiosities Loaded" << endl;
 
     sf::RectangleShape tloNapisow;
     tloNapisow.setFillColor(Color::Black);
@@ -1349,13 +1397,20 @@ void Game::startgame()
 
     ///////////////////////////////
     // Muzyka
+    cout << "Loading Music..." << endl;
+    cout << "Setting Volume..." << endl;
+
     float volume = 30.f;
+
+    cout << "Volume set" << endl;
 
     sf::Music soundtrack, soundtrack2;
     if(!soundtrack.openFromFile("Resources/Game/Music/GameSoundTrack2.ogg"))
         ErrorMsg("hmm... Chyba brakuje dzwiekow, Sprawdz: Resources/Game/Music/GameSoundTrack2.ogg","ERROR");
     if(!soundtrack2.openFromFile("Resources/Game/Music/GameSoundTrack3.ogg"))
         ErrorMsg("hmm... Chyba brakuje dzwiekow, Sprawdz: Resources/Game/Music/GameSoundTrack3.ogg","ERROR");
+
+    cout << "Music Loaded" << endl;
 
     soundtrack.setLoop(false);
     soundtrack2.setLoop(false);
@@ -1371,6 +1426,7 @@ void Game::startgame()
     ////////////////////////
     // Dzwieki
 
+    cout << "Loading sounds..." << endl;
 
     sf::SoundBuffer sfall1, sfall2, sfall3;
     sf::SoundBuffer shop;
@@ -1385,6 +1441,8 @@ void Game::startgame()
        ErrorMsg("hmm... Chyba brakuje dzwieku! Sprawdz: Resources/Game/Music/hop.wav", "ERROR");
     if(!sprzejscie.loadFromFile("Resources/Game/Music/przejscie.wav"))
        ErrorMsg("hmm... Chyba brakuje dzwieku! Sprawdz: Resources/Game/Music/przejscie.wav", "ERROR");
+
+    cout << "Sounds Loaded" << endl;
 
     sf::Sound fall1, fall2, fall3;
     sf::Sound przejscie;
@@ -1425,20 +1483,29 @@ void Game::startgame()
 
     //sf::Time BackGroundTime = clock.getElapsedTime();
 
+    /////////////////////////////
+    // Do ciekawostek
+
+    //bool ciekawostki[ile_linii] = {false};
+
     while(state == GAMESTART)
     {
         if (ktoratextura >= howmany) // ilosc obrazkow
             ktoratextura = 0; //zerowanie // powrot do pierwszej klatki
 
+        //sBackground.setTexture(bgTexture[ktoratextura]);
+
         if(this->dzwiek == true)
             volume = 30.f;
-        else    volume = NULL;
+        else    volume = 0.f;
 
         fall1.setVolume(volume);
         fall2.setVolume(volume);
         fall3.setVolume(volume);
 
-        hop.setVolume(volume-10.f);
+        if(volume <= 0.f && volume < 10)   hop.setVolume(volume);
+        else if (volume >= 10.f)  hop.setVolume(volume-10.f);
+
         przejscie.setVolume(volume);
         soundtrack.setVolume(volume/2);
         soundtrack2.setVolume(volume/2);
@@ -1624,10 +1691,26 @@ void Game::startgame()
             this->platforma = false;
         }
 
+                    if (czas.asMilliseconds() > 50){ // zmiana klatki co pol sekundy
+                        sBackground.setTexture(bgTexture[ktoratextura]);
+                        ktoratextura++;
+                        //cout << "Czas1: " << czas.asSeconds() << endl; // do debugowania
+
+                        //zegar.restart();
+                    }
+
+
         if (isGift == false){ // gdy prezentu nie ma na mapie
             if (drawciek == true){ // jezeli wyswietlona ciekawostka
                 if (czas.asSeconds() > 4){ // po trzech sekundach
-                    whichGift = rand()%ile_linii; // losuje ktora ciekawoste wyswietlic
+
+                    prezent:
+                        whichGift = rand()%ile_linii+1; // losuje ktora ciekawoste wyswietlic
+
+                        if (ciekawostki[whichGift] == false)
+                            ciekawostki[whichGift] = true;
+                        else    goto prezent;
+
                     //cout << whichGift << endl;
                     isGift2 = true; // gift jest na mapie
                     drawciek = false; // przestan wyswietlac ciekawostke
