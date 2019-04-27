@@ -34,6 +34,7 @@
 #include "game.h"
 
 using namespace sf;
+using namespace std;
 
 short wysokosc = 600, szerokosc = 800;
 
@@ -87,6 +88,17 @@ Game::Game(void)
         ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/main.otf'","ERROR");
         return;
     }
+    cout << "Loading Background Textures..." << endl;
+
+    for(int i = 0; i < this->howmany; i++){
+        jakisstring[i] = std::string("Resources/Game/frames/frame")+intToStr(i+1)+".png";
+
+        if (!bgTexture[i].loadFromFile(jakisstring[i]))
+            ErrorMsg("Hmm... Brakuje textury! Sprawdz czy masz wszystkie w 'Resources/Game/frames/'","ERROR");
+
+        cout << std::string("Frame ") + intToStr(i+1) +"/"+intToStr(howmany) + " Loaded" << endl;
+    }
+    cout << "Background Textures Loaded" << endl;
 
 	state = MENU;
 }
@@ -268,105 +280,105 @@ void Game::menu()
     for (int i = 0; i < this->ile_linii; i++)
         this->ciekawostki[i] = false;
 
-	Text title(L"Kopernik i Płaska Ziemia",font,80);
-	title.setStyle(Text::Bold);
+    Text title(L"Kopernik i Płaska Ziemia",font,80);
+    title.setStyle(Text::Bold);
 
-	title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
+    title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
 //////////////////////////////////////////////////////////////////////////////
     window.setMouseCursorVisible(false);
 
-	sf::View fixed = window.getView();
-	sf::Texture cursorTexture;
-	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
-		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+    sf::View fixed = window.getView();
+    sf::Texture cursorTexture;
+    if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+        ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
 
-	sf::Sprite cursor(cursorTexture);
+    sf::Sprite cursor(cursorTexture);
 /////////////////////////////////////////////////////////////////////////////
-	const int ile = 6;
+    const int ile = 6;
 
-	Text tekst[ile];
+    Text tekst[ile];
 
-	sf::String str[] = {"Rozpocznij","Dodatki","Zamknij","Porady",L"Dźwięk: ", "Wł."};
-	for(int i=0;i<ile;i++)
-	{
-		tekst[i].setFont(font);
-		tekst[i].setCharacterSize(70);              // Main Menu, texts and buttons
+    sf::String str[] = {"Rozpocznij","Dodatki","Zamknij","Porady",L"Dźwięk: ", "Wł."};
+    for(int i=0;i<ile;i++)
+    {
+        tekst[i].setFont(font);
+        tekst[i].setCharacterSize(70);              // Main Menu, texts and buttons
 
-		tekst[i].setString(str[i]);
-		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,250+i*75);
-	}
+        tekst[i].setString(str[i]);
+        tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,250+i*75);
+    }
 ///////////////////////////////////////////////////////////////////////////////////
     tekst[3].setPosition(5,wysokosc-tekst[3].getGlobalBounds().height-30);
     tekst[4].setPosition(szerokosc-tekst[4].getGlobalBounds().width-120,wysokosc-tekst[4].getGlobalBounds().height-36);
     tekst[5].setPosition(szerokosc-tekst[5].getGlobalBounds().width,wysokosc-tekst[5].getGlobalBounds().height-35);
     tekst[5].setCharacterSize(60);
 
-	while(state == MENU)
-	{
-	    if (this->dzwiek == true)
+    while(state == MENU)
+    {
+        if (this->dzwiek == true)
             tekst[5].setString(L"Wł.");
         else tekst[5].setString(L"Wył.");
 
-		Vector2f mouse(Mouse::getPosition(window));
-		Event event;
+        Vector2f mouse(Mouse::getPosition(window));
+        Event event;
 
-		while(window.pollEvent(event))
-		{
-			//Wciœniêcie ESC lub przycisk X
-			if(event.type == Event::Closed || (event.type == Event::KeyPressed &&
-				event.key.code == Keyboard::Escape))
-				state = END;
+        while(window.pollEvent(event))
+        {
+            //Wciœniêcie ESC lub przycisk X
+            if(event.type == Event::Closed || (event.type == Event::KeyPressed &&
+                event.key.code == Keyboard::Escape))
+                state = END;
 
-			//klikniêcie EXIT
-			else if(tekst[2].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
-			{
-				state = END;
-			}
-			else if(tekst[1].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
-			{
-				state = MENUOPTIONS;
-			}
-			else if(tekst[0].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
-			{
-				state = CUT1;
-			}
-			else if(tekst[3].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
-			{
-				state = HINTS;
-			}
-			else if(tekst[4].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
-			{
-				if (this->dzwiek == true)
+            //klikniêcie EXIT
+            else if(tekst[2].getGlobalBounds().contains(mouse) &&
+                event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+            {
+                state = END;
+            }
+            else if(tekst[1].getGlobalBounds().contains(mouse) &&
+                event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+            {
+                state = MENUOPTIONS;
+            }
+            else if(tekst[0].getGlobalBounds().contains(mouse) &&
+                event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+            {
+                state = CUT1;
+            }
+            else if(tekst[3].getGlobalBounds().contains(mouse) &&
+                event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+            {
+                state = HINTS;
+            }
+            else if(tekst[4].getGlobalBounds().contains(mouse) &&
+                event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+            {
+                if (this->dzwiek == true)
                     this->dzwiek = false;
                 else this->dzwiek = true;
-			}
-			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+            }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
-		}
-		for(int i=0;i<ile-1;i++)
-			if(tekst[i].getGlobalBounds().contains(mouse))
-				tekst[i].setFillColor(Color::Cyan); // when you will move your mouse on button
-			else tekst[i].setFillColor(Color::White);
+        }
+        for(int i=0;i<ile-1;i++)
+            if(tekst[i].getGlobalBounds().contains(mouse))
+                tekst[i].setFillColor(Color::Cyan); // when you will move your mouse on button
+            else tekst[i].setFillColor(Color::White);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
-		window.clear();
+        window.clear();
 
-		window.draw(title);
-		for(int i=0;i<ile;i++)
-			window.draw(tekst[i]);
+        window.draw(title);
+        for(int i=0;i<ile;i++)
+            window.draw(tekst[i]);
 
         window.setView(fixed);
         window.draw(cursor);
-		window.display();
-	}
+        window.display();
+    }
 }
-using namespace std;
+
 void Game::hints()
 {
     // state = HINTS
@@ -1227,25 +1239,10 @@ void Game::startgame()
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/doodle4.png'","ERROR");
 
     cout << "Basic Textures Loaded" << endl;
-    cout << "Loading Background Textures..." << endl;
-
-    int howmany = 37;
-    sf::Texture bgTexture[howmany];
-    sf::String jakisstring[howmany];
-
-    for(int i = 0; i < howmany; i++){
-        jakisstring[i] = std::string("Resources/Game/frames/frame")+intToStr(i+1)+".png";
-
-        if (!bgTexture[i].loadFromFile(jakisstring[i]))
-            ErrorMsg("Hmm... Brakuje textury! Sprawdz czy masz wszystkie w 'Resources/Game/frames/'","ERROR");
-
-        cout << std::string("Frame ") + intToStr(i+1) +"/"+intToStr(howmany) + " Loaded" << endl;
-    }
-
-    cout << "Background Textures Loaded" << endl;
 
     int ktoratextura = 0;
     sf::Sprite sBackground(bgTexture[0]);
+
     //sf::Sprite sBackground(t1);
 
     sf::Sprite sPlat(platform1);
@@ -1691,13 +1688,50 @@ void Game::startgame()
             this->platforma = false;
         }
 
-                    if (czas.asMilliseconds() > 50){ // zmiana klatki co pol sekundy
-                        sBackground.setTexture(bgTexture[ktoratextura]);
-                        ktoratextura++;
-                        //cout << "Czas1: " << czas.asSeconds() << endl; // do debugowania
-
-                        //zegar.restart();
-                    }
+        if (czas.asMilliseconds() > 50 && czas.asMilliseconds() < 55 || czas.asMilliseconds() > 100 && czas.asMilliseconds() < 105 ||
+            czas.asMilliseconds() > 150 && czas.asMilliseconds() < 155 || czas.asMilliseconds() > 200 && czas.asMilliseconds() < 205 ||
+            czas.asMilliseconds() > 250 && czas.asMilliseconds() < 255 || czas.asMilliseconds() > 300 && czas.asMilliseconds() < 305 ||
+            czas.asMilliseconds() > 350 && czas.asMilliseconds() < 355 || czas.asMilliseconds() > 400 && czas.asMilliseconds() < 405 ||
+            czas.asMilliseconds() > 450 && czas.asMilliseconds() < 455 || czas.asMilliseconds() > 500 && czas.asMilliseconds() < 505 ||
+            czas.asMilliseconds() > 550 && czas.asMilliseconds() < 555 || czas.asMilliseconds() > 600 && czas.asMilliseconds() < 605 ||
+            czas.asMilliseconds() > 650 && czas.asMilliseconds() < 655 || czas.asMilliseconds() > 700 && czas.asMilliseconds() < 705 ||
+            czas.asMilliseconds() > 750 && czas.asMilliseconds() < 705 || czas.asMilliseconds() > 800 && czas.asMilliseconds() < 805 ||
+            czas.asMilliseconds() > 850 && czas.asMilliseconds() < 855 || czas.asMilliseconds() > 900 && czas.asMilliseconds() < 905 ||
+            czas.asMilliseconds() > 950 && czas.asMilliseconds() < 955 || czas.asMilliseconds() > 1000 && czas.asMilliseconds() < 1005 ||
+            czas.asMilliseconds() > 1050 && czas.asMilliseconds() < 1055 || czas.asMilliseconds() > 1100 && czas.asMilliseconds() < 1105 ||
+            czas.asMilliseconds() > 1150 && czas.asMilliseconds() < 1155 || czas.asMilliseconds() > 1200 && czas.asMilliseconds() < 1205 ||
+            czas.asMilliseconds() > 1250 && czas.asMilliseconds() < 1255 || czas.asMilliseconds() > 1300 && czas.asMilliseconds() < 1305 ||
+            czas.asMilliseconds() > 1350 && czas.asMilliseconds() < 1355 || czas.asMilliseconds() > 1400 && czas.asMilliseconds() < 1405 ||
+            czas.asMilliseconds() > 1450 && czas.asMilliseconds() < 1455 || czas.asMilliseconds() > 1500 && czas.asMilliseconds() < 1505 ||
+            czas.asMilliseconds() > 1550 && czas.asMilliseconds() < 1555 || czas.asMilliseconds() > 1600 && czas.asMilliseconds() < 1605 ||
+            czas.asMilliseconds() > 1650 && czas.asMilliseconds() < 1655 || czas.asMilliseconds() > 1700 && czas.asMilliseconds() < 1705 ||
+            czas.asMilliseconds() > 1750 && czas.asMilliseconds() < 1755 || czas.asMilliseconds() > 1800 && czas.asMilliseconds() < 1805 ||
+            czas.asMilliseconds() > 1850 && czas.asMilliseconds() < 1855 || czas.asMilliseconds() > 1900 && czas.asMilliseconds() < 1905 ||
+            czas.asMilliseconds() > 1950 && czas.asMilliseconds() < 1955 || czas.asMilliseconds() > 2000 && czas.asMilliseconds() < 2005 ||
+            czas.asMilliseconds() > 2050 && czas.asMilliseconds() < 2055 || czas.asMilliseconds() > 2100 && czas.asMilliseconds() < 2105 ||
+            czas.asMilliseconds() > 2150 && czas.asMilliseconds() < 2155 || czas.asMilliseconds() > 2200 && czas.asMilliseconds() < 2205 ||
+            czas.asMilliseconds() > 2250 && czas.asMilliseconds() < 2255 || czas.asMilliseconds() > 2300 && czas.asMilliseconds() < 2305 ||
+            czas.asMilliseconds() > 2350 && czas.asMilliseconds() < 2355 || czas.asMilliseconds() > 2400 && czas.asMilliseconds() < 2400 ||
+            czas.asMilliseconds() > 2450 && czas.asMilliseconds() < 2455 || czas.asMilliseconds() > 2500 && czas.asMilliseconds() < 2505 ||
+            czas.asMilliseconds() > 2550 && czas.asMilliseconds() < 2555 || czas.asMilliseconds() > 2600 && czas.asMilliseconds() < 2605 ||
+            czas.asMilliseconds() > 2650 && czas.asMilliseconds() < 2655 || czas.asMilliseconds() > 2700 && czas.asMilliseconds() < 2705 ||
+            czas.asMilliseconds() > 2750 && czas.asMilliseconds() < 2755 || czas.asMilliseconds() > 2800 && czas.asMilliseconds() < 2805 ||
+            czas.asMilliseconds() > 2850 && czas.asMilliseconds() < 2855 || czas.asMilliseconds() > 2900 && czas.asMilliseconds() < 2905 ||
+            czas.asMilliseconds() > 2950 && czas.asMilliseconds() < 2955 || czas.asMilliseconds() > 3000 && czas.asMilliseconds() < 3005 ||
+            czas.asMilliseconds() > 3050 && czas.asMilliseconds() < 3055 || czas.asMilliseconds() > 3100 && czas.asMilliseconds() < 3105 ||
+            czas.asMilliseconds() > 3150 && czas.asMilliseconds() < 3155 || czas.asMilliseconds() > 3200 && czas.asMilliseconds() < 3205 ||
+            czas.asMilliseconds() > 3250 && czas.asMilliseconds() < 3255 || czas.asMilliseconds() > 3300 && czas.asMilliseconds() < 3305 ||
+            czas.asMilliseconds() > 3350 && czas.asMilliseconds() < 3355 || czas.asMilliseconds() > 3400 && czas.asMilliseconds() < 3405 ||
+            czas.asMilliseconds() > 3450 && czas.asMilliseconds() < 3455 || czas.asMilliseconds() > 3500 && czas.asMilliseconds() < 3505 ||
+            czas.asMilliseconds() > 3550 && czas.asMilliseconds() < 3555 || czas.asMilliseconds() > 3600 && czas.asMilliseconds() < 3605 ||
+            czas.asMilliseconds() > 3650 && czas.asMilliseconds() < 3655 || czas.asMilliseconds() > 3700 && czas.asMilliseconds() < 3705 ||
+            czas.asMilliseconds() > 3750 && czas.asMilliseconds() < 3755 || czas.asMilliseconds() > 3800 && czas.asMilliseconds() < 3805 ||
+            czas.asMilliseconds() > 3850 && czas.asMilliseconds() < 3855 || czas.asMilliseconds() > 3900 && czas.asMilliseconds() < 3905 ||
+            czas.asMilliseconds() > 3950 && czas.asMilliseconds() < 3955 || czas.asMilliseconds() > 4000 && czas.asMilliseconds() < 4005){ // zmiana klatki co 50 milisekund
+            sBackground.setTexture(bgTexture[ktoratextura]);
+            ktoratextura++;
+        }
+        czas=zegar.getElapsedTime();
 
 
         if (isGift == false){ // gdy prezentu nie ma na mapie

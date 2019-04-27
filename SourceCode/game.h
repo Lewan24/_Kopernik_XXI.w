@@ -44,6 +44,10 @@ public:
 
     short ile_linii = 14;
 
+    int howmany = 37; // ilosc klatek
+    sf::Texture bgTexture[37];
+    sf::String jakisstring[37];
+
 	void runGame();
 	void gameUpdate(bool);
 	void help();
@@ -56,6 +60,8 @@ protected:
 	GameState state;
 
 private:
+    bool loading = true;
+
     bool ciekawostki[14] = {false}; // ilosc linii w ciekawostkach - 1
 
     bool dzwiek = true;
