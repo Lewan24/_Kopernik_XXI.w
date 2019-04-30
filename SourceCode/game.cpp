@@ -40,7 +40,7 @@ short wysokosc = 600, szerokosc = 800;
 
 sf::Vector2i screenDimensions(szerokosc,wysokosc);
 sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), L"Kopernik i Płaska Ziemia",Style::Close);
-
+// TODO: gra troche za pozno sie konczy / lub zrobic wieksza teksture ukladu slonecznego
 /*
     window.setMouseCursorVisible(false);
 
@@ -1734,6 +1734,8 @@ void Game::startgame()
         }
         czas=zegar.getElapsedTime();
 
+//TODO: Osobna cutscenka z animacja ruchu planet
+// TODO: Dodac kolejne planety do animacji
 
         if (isGift == false){ // gdy prezentu nie ma na mapie
             if (drawciek == true){ // jezeli wyswietlona ciekawostka
