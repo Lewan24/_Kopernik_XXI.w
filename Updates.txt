@@ -1,3 +1,11 @@
+1.4.0.0
+-Fixed bugs
+-Add end results
+-Modify Options
+-Add game points
+-Change some cutscenes
+-Modify textures
+
 1.3.7.0
 -Fix animated background
 

@@ -56,11 +56,18 @@ public:
 	void ErrorMsg(string, string);
 
 protected:
-	enum GameState {MENU,GAMESTART,END,GAMEOVER,CUT1,CUT2,CUT3,CUT4,MENUOPTIONS,HINTS,GREETINGS};
+	enum GameState {MENU,GAMESTART,END,GAMEOVER,
+                    CUT1,CUT2,CUT3,CUT4,
+                    MENUOPTIONS,HINTS,GREETINGS,
+                    WYNIKI,ANIMACJA};
 	GameState state;
 
 private:
-    bool loading = true;
+    int iloscprezentow = 0;
+    bool przegrana = false;
+    float punkty = 0;
+    float mnoznikpkt = 1;
+    //bool loading = true;
 
     bool ciekawostki[21] = {false}; // ilosc linii w ciekawostkach - 1
 
@@ -86,6 +93,8 @@ private:
 	void cut4();
 	void gameOver();
 	void startgame();
+	void animacja();
+	void wyniki();
 };
 
 #endif // game_h

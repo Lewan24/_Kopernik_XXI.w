@@ -30,6 +30,8 @@
 #include <cstring>
 #include <SFML/Audio.hpp>
 #include <cstdio>
+#include <stdlib.h>
+#include <sstream>
 
 #include "game.h"
 
@@ -40,8 +42,8 @@ short wysokosc = 600, szerokosc = 800;
 
 sf::Vector2i screenDimensions(szerokosc,wysokosc);
 sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), L"Kopernik i Płaska Ziemia",Style::Close);
-// TODO: gra troche za pozno sie konczy / lub zrobic wieksza teksture ukladu slonecznego
-/*
+
+/* // KURSOR WZOR
     window.setMouseCursorVisible(false);
 
 	sf::View fixed = window.getView();
@@ -57,11 +59,6 @@ sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), L
     window.setView(fixed);
     window.draw(cursor);
 */
-
-// TODO: Wyniki moga byc liczone od sekund przebytych w grze, od ilosci przeskokow pomiedzy prawa a lewa krawedzia
-// gry, ilosc wysokich skokow np. po spacji, poziom trudnosci im ciezszy tym wiecej punktow sie dostaje
-// szybkosc dojscia do konca gry, ilosc zebranych ciekawostek o koperniku
-// TODO: Stworzyc przed ostatnia cutscenka tablice z koncowym wynikiem itd;
 
 string intToStr(int n)
 {
@@ -88,17 +85,6 @@ Game::Game(void)
         ErrorMsg("Hmm... Chyba brakuje czcionki! Sprawdz 'Resources/Fonts/main.otf'","ERROR");
         return;
     }
-    cout << "Loading Background Textures..." << endl;
-
-    for(int i = 0; i < this->howmany; i++){
-        jakisstring[i] = std::string("Resources/Game/frames/frame")+intToStr(i+1)+".png";
-
-        if (!bgTexture[i].loadFromFile(jakisstring[i]))
-            ErrorMsg("Hmm... Brakuje textury! Sprawdz czy masz wszystkie w 'Resources/Game/frames/'","ERROR");
-
-        cout << std::string("Frame ") + intToStr(i+1) +"/"+intToStr(howmany) + " Loaded" << endl;
-    }
-    cout << "Background Textures Loaded" << endl;
 
 	state = MENU;
 }
@@ -161,12 +147,178 @@ void Game::runGame(){
                 hints();
                 break;
 
+            case WYNIKI:
+                wyniki();
+                break;
+
+            case ANIMACJA:
+                animacja();
+                break;
+
             /* TODO:  opis gry
             opis Kopernika i jego osiagniec // w dodatkach bedzie jakas dluzsza wersja troche o nim opowiadajaca
             */
             default: break;
 		}
 	}
+}
+
+void Game::wyniki(){
+    //state = WYNIKI
+//TODO: Znalezc dzwieki jakies do wynikow
+    Text title(L"Kopernik i Płaska Ziemia",font,80);
+    title.setStyle(Text::Bold);
+
+    title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+    sf::View fixed = window.getView();
+    sf::Texture cursorTexture;
+    if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+        ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+    sf::Sprite cursor(cursorTexture);
+/////////////////////////////////////////////////////////////////////////////
+    const int ile = 4;
+
+    Text tekst[ile];
+
+    sf::String str[] = {"Kontynuuj", L"WOW! Twój wynik: ", "Gratulacje!", L"Ilość zebranych prezentów: "};
+    for(int i=0;i<ile;i++)
+    {
+        tekst[i].setFont(font);
+        tekst[i].setCharacterSize(50);              // Main Menu, texts and buttons
+
+        tekst[i].setString(str[i]);
+        tekst[i].setPosition(szerokosc-tekst[i].getGlobalBounds().width-20,500+i*75);
+        tekst[i].setStyle(Text::Bold);
+    }
+///////////////////////////////////////////////////////////////////////////////////
+
+    tekst[1].setString(tekst[1].getString() + intToStr(this->punkty));
+    tekst[1].setPosition(szerokosc/3-tekst[1].getGlobalBounds().width/2,200);
+    tekst[1].setCharacterSize(65);
+
+    tekst[2].setPosition(szerokosc/2-tekst[2].getGlobalBounds().width/2,370);
+    tekst[2].setCharacterSize(55);
+
+    tekst[3].setString(tekst[3].getString() + intToStr(this->iloscprezentow));
+    tekst[3].setPosition(szerokosc/3-tekst[3].getGlobalBounds().width/2,280);
+    tekst[3].setCharacterSize(65);
+
+    while(state == WYNIKI)
+    {
+        Vector2f mouse(Mouse::getPosition(window));
+        Event event;
+
+        while(window.pollEvent(event))
+        {
+            //Wciœniêcie ESC lub przycisk X
+            if(event.type == Event::Closed)
+                state = END;
+
+            //klikniêcie EXIT
+            else if(tekst[0].getGlobalBounds().contains(mouse) &&
+                event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+            {
+                if (przegrana == false)
+                    state = CUT3;
+                else    state = MENU;
+            }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+        }
+        //for(int i=0;i<ile-1;i++)
+            if(tekst[0].getGlobalBounds().contains(mouse))
+                tekst[0].setFillColor(Color::Cyan); // when you will move your mouse on button
+            else tekst[0].setFillColor(Color::White);
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        window.clear();
+
+        window.draw(title);
+
+        for(int i=0;i<ile;i++)
+            window.draw(tekst[i]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+        window.display();
+    }
+}
+
+void Game::animacja(){
+    //state = ANIMACJA
+
+    window.setMouseCursorVisible(false);
+
+    sf::View fixed = window.getView();
+    sf::Texture cursorTexture;
+    if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+        ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+    sf::Sprite cursor(cursorTexture);
+/////////////////////////////////////////////////////////////////////////////
+    sf::Texture bgTexture[howmany];
+
+    for(int i = 0; i < this->howmany; i++){
+        jakisstring[i] = std::string("Resources/Game/frames/frame")+intToStr(i+1)+".jpg";
+
+        if (!bgTexture[i].loadFromFile(jakisstring[i]))
+            ErrorMsg("Hmm... Brakuje textury! Sprawdz czy masz wszystkie w 'Resources/Game/frames/" + intToStr(i+1),"ERROR");
+
+        cout << std::string("Frame ") + intToStr(i+1) +"/"+intToStr(howmany) + " Loaded" << endl;
+    }
+    //cout << "Background Textures Loaded" << endl;
+
+    sf::Sprite sBackground;
+
+    sf::Clock zegar;
+    sf::Time czas;
+
+    int a = 0;
+
+    while(state == ANIMACJA)
+    {
+        sBackground.setTexture(bgTexture[a]);
+
+        if (a == howmany)
+            a = 0;
+
+        Vector2f mouse(Mouse::getPosition(window));
+        Event event;
+
+        while(window.pollEvent(event))
+        {
+            //Wciœniêcie ESC lub przycisk X
+            if(event.type == Event::Closed)
+                state = END;
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+                state = WYNIKI;
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+        }
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        if (czas.asMilliseconds() > 50){
+            a++;
+            zegar.restart();
+        }
+        czas = zegar.getElapsedTime();
+
+        window.clear();
+
+        window.draw(sBackground);
+
+        window.setView(fixed);
+        window.draw(cursor);
+        window.display();
+    }
 }
 
 void Game::greetings()
@@ -279,6 +431,9 @@ void Game::menu()
     this->platforma = true;
     for (int i = 0; i < this->ile_linii; i++)
         this->ciekawostki[i] = false;
+    this->punkty = 0;
+    this->przegrana = false;
+    this->iloscprezentow = 0;
 
     Text title(L"Kopernik i Płaska Ziemia",font,80);
     title.setStyle(Text::Bold);
@@ -518,7 +673,7 @@ void Game::options()
     Text title(L"Kopernik i Płaska Ziemia",font,40);
 	title.setStyle(Text::Bold);
 
-	title.setPosition(szerokosc/4-title.getGlobalBounds().width/2,20);
+	title.setPosition(szerokosc-title.getGlobalBounds().width-20,20);
 //////////////////////////////////////////////////////////////////////////////
     window.setMouseCursorVisible(false);
 
@@ -571,13 +726,30 @@ void Game::options()
 
     tekst[3].setPosition(szerokosc-tekst[3].getGlobalBounds().width-5,wysokosc-tekst[3].getGlobalBounds().height-30);
 
+
     string zyciastr[6] = {"0","1","2","3","4","5"};
+
+    //bool widocznastrzalka = true;
+
+    sf::Text strzalka;
+    strzalka.setFont(font);
+    strzalka.setCharacterSize(tekst[0].getCharacterSize());
+    strzalka.setStyle(tekst[0].getStyle());
+    strzalka.setString("->");
+    strzalka.setFillColor(Color::Red);
+
 
     sf::Text ilezyc;
     ilezyc.setFont(font);
     ilezyc.setCharacterSize(45);
     ilezyc.setPosition(50, 150);
     ilezyc.setStyle(Text::Bold);
+
+    sf::Text mnoznik;
+    mnoznik.setFont(font);
+    mnoznik.setCharacterSize(45);
+    mnoznik.setPosition(50, 90);
+    mnoznik.setStyle(Text::Bold);
 
 	while(state == MENUOPTIONS)
 	{
@@ -618,17 +790,36 @@ void Game::options()
 			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
 		}
+
+		strzalka.setPosition(-400,0);
+
 		for(int i=0;i<ile;i++)
-			if(tekst[i].getGlobalBounds().contains(mouse))
-				tekst[i].setFillColor(Color::Cyan); // when you will move your mouse on button
-			else tekst[i].setFillColor(Color::White);
+			if(tekst[i].getGlobalBounds().contains(mouse)){
+                    strzalka.setPosition(tekst[i].getPosition().x-strzalka.getGlobalBounds().width-4, tekst[i].getPosition().y);
+                    tekst[i].setFillColor(Color::Cyan); // when you will move your mouse on button
+			}
+			else
+                tekst[i].setFillColor(Color::White);
 
         if (this->trudnosc >= trudnosci)
             this->trudnosc = 0;
 
+        if (this->trudnosc == 0){
+            this->mnoznikpkt = 0.5;
+            mnoznik.setString(L"Mnożnik: 0.5");
+        }
+        else{
+            this->mnoznikpkt = atoi(zyciastr[trudnosc].c_str());
+            mnoznik.setString(L"Mnożnik: " + zyciastr[trudnosc]);
+        }
+
+//cout << "mnoznik: " << this->mnoznikpkt << endl;
+
         ilezyc.setString(L"Ilość żyć na start: " + zyciastr[iloscZyc]);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        //std::cout << "x: " << strzalka.getPosition().x << ", y: " << strzalka.getPosition().y << endl;
 
 		window.clear();
 
@@ -640,6 +831,9 @@ void Game::options()
         window.draw(poziomy[trudnosc]);
         window.draw(opisTrudnosci[trudnosc]);
         window.draw(ilezyc);
+        window.draw(mnoznik);
+
+        window.draw(strzalka);
 
         window.setView(fixed);
         window.draw(cursor);
@@ -1193,10 +1387,15 @@ void Game::cut2(){
 struct point
 { int x,y;};
 
+template <typename T> string tostr(const T& t) {
+   ostringstream os;
+   os<<t;
+   return os.str();
+}
+
 void Game::startgame()
 {
     //TODO: Lektor do ciekawostek
-    //TODO: Nowe Ciekawostki dodac
 
     cout << "Updating Game..." << endl;
 
@@ -1220,9 +1419,9 @@ void Game::startgame()
     cout << "Loading Basic Textures..." << endl;
 
     Texture platform1,platform2,platform3,t3,t4,doodle3,doodle4;
-    /*Texture t1;
-    if (!t1.loadFromFile("Resources/Textures/background.png"))
-        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/background.png'","ERROR");*/
+    Texture bgTexture;
+    if (!bgTexture.loadFromFile("Resources/Textures/background.png"))
+        ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/background.png'","ERROR");
     if (!platform1.loadFromFile("Resources/Textures/platform1.png"))
         ErrorMsg("Hmm... Chyba brakuje textury! Sprawdz 'Resources/Textures/platform1.png'","ERROR");
     if (!platform2.loadFromFile("Resources/Textures/platform2.png"))
@@ -1240,8 +1439,8 @@ void Game::startgame()
 
     cout << "Basic Textures Loaded" << endl;
 
-    int ktoratextura = 0;
-    sf::Sprite sBackground(bgTexture[0]);
+    //int ktoratextura = 0;
+    sf::Sprite sBackground(bgTexture);
 
     //sf::Sprite sBackground(t1);
 
@@ -1299,7 +1498,7 @@ void Game::startgame()
     for (int i = 0; i < ile; i++){ // dla kazdego stringa ustawiam kolor, wielkosc itd
         zycia[i].setFont(font);
         zycia[i].setPosition(210,0);
-        zycia[i].setCharacterSize(25);
+        zycia[i].setCharacterSize(30);
         zycia[i].setString(str[i]);
         zycia[i].setFillColor(sf::Color::Red);
         zycia[i].setStyle(Text::Bold);
@@ -1486,10 +1685,19 @@ void Game::startgame()
 
     //bool ciekawostki[ile_linii] = {false};
 
+    sf::Text ilepunktow;
+    ilepunktow.setFont(font);
+    ilepunktow.setPosition(210,40);
+    ilepunktow.setCharacterSize(30);
+    ilepunktow.setFillColor(sf::Color::Red);
+    ilepunktow.setStyle(Text::Bold);
+
     while(state == GAMESTART)
     {
-        if (ktoratextura >= howmany) // ilosc obrazkow
-            ktoratextura = 0; //zerowanie // powrot do pierwszej klatki
+        ilepunktow.setString("Punkty: " + tostr(this->punkty));
+
+        //if (ktoratextura >= howmany) // ilosc obrazkow
+            //ktoratextura = 0; //zerowanie // powrot do pierwszej klatki
 
         //sBackground.setTexture(bgTexture[ktoratextura]);
 
@@ -1553,9 +1761,9 @@ void Game::startgame()
             this->playmusic1 = false;
             state = CUT2;
         }
-        else if (sBackground.getPosition().y > 200){
+        else if (sBackground.getPosition().y > 30){
             soundtrack2.stop();
-            state = CUT3;
+            state = ANIMACJA;
         }
 
         if (sBackground.getPosition().y > -2800 && sBackground.getPosition().y < -851)
@@ -1569,12 +1777,17 @@ void Game::startgame()
         dy+=0.2;
         y+=dy;
 
+        if (dy >= -10.2 && dy <= -9.8)
+            this->punkty += (10*this->mnoznikpkt);
+
         //std::cout << "dy: " << dy << "      Player x: " << x << ", y: " << y << endl;
 
         if (y>600)  {
             //dy=-10;
-            if (iloscZyc <= 0)
+            if (iloscZyc <= 0){
+                przegrana = true;
                 state = GAMEOVER;
+            }
             else{
                 iloscZyc -= 1;
                 dy=-15;
@@ -1631,6 +1844,7 @@ void Game::startgame()
                 }
             }
         }
+        // CUT3
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
             x+=5;
 
@@ -1681,6 +1895,8 @@ void Game::startgame()
         if (isGift == true && sPers.getGlobalBounds().contains(gift.getPosition().x,gift.getPosition().y)){ // czy gracz dotyka prezentu?
             //drawciek = true; // i pokaz ciekawostke
             isGift = false; // jesli tak to przestan pokazywac prezent
+            this->punkty += (15*this->mnoznikpkt);
+            this->iloscprezentow += 1;
             drawciek = true;
             zegar.restart();
         }
@@ -1689,7 +1905,7 @@ void Game::startgame()
             this->platforma = false;
         }
 
-        if ((czas.asMilliseconds() > 50 && czas.asMilliseconds() < 55) || (czas.asMilliseconds() > 100 && czas.asMilliseconds() < 105) ||
+        /*if ((czas.asMilliseconds() > 50 && czas.asMilliseconds() < 55) || (czas.asMilliseconds() > 100 && czas.asMilliseconds() < 105) ||
             (czas.asMilliseconds() > 150 && czas.asMilliseconds() < 155) || (czas.asMilliseconds() > 200 && czas.asMilliseconds() < 205) ||
             (czas.asMilliseconds() > 250 && czas.asMilliseconds() < 255) || (czas.asMilliseconds() > 300 && czas.asMilliseconds() < 305) ||
             (czas.asMilliseconds() > 350 && czas.asMilliseconds() < 355) || (czas.asMilliseconds() > 400 && czas.asMilliseconds() < 405) ||
@@ -1732,9 +1948,8 @@ void Game::startgame()
             sBackground.setTexture(bgTexture[ktoratextura]);
             ktoratextura++;
         }
-        czas=zegar.getElapsedTime();
+        czas=zegar.getElapsedTime();*/
 
-//TODO: Osobna cutscenka z animacja ruchu planet
 // TODO: Dodac kolejne planety do animacji
 
         if (isGift == false){ // gdy prezentu nie ma na mapie
@@ -1788,6 +2003,7 @@ void Game::startgame()
         }
 
         window.draw(zycia[iloscZyc]);
+        window.draw(ilepunktow);
 
         if (this->platforma == true){
             window.draw(FirstPlatform);
@@ -1907,6 +2123,11 @@ void Game::gameOver()
 			{
 				state = MENU;
 			}
+			else if(tekst[1].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+			{
+				state = WYNIKI;
+			}
 			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
 		}
@@ -1950,6 +2171,8 @@ void Game::help()
     cout << "options - przejscie do menu opcji" << endl;
     cout << "greetings - przejscie do Podziekowan" << endl;
     cout << "gotoLast - przejscie do koncowki gry" << endl;
+    cout << "animacja - przejscie do koncowej animacji gry" << endl;
+    cout << "wyniki - przejscie do wynikow gry" << endl;
     cout << "=================================================" << endl;
     // cout << "" << endl;
 }
@@ -1980,6 +2203,10 @@ void Game::console()
         cout << "Cutscena nr 4" << endl;
     else if (state == GREETINGS)
         cout << "Podziekowania" << endl;
+    else if (state == ANIMACJA)
+        cout << "Animacja" << endl;
+    else if (state == WYNIKI)
+        cout << "Wyniki" << endl;
     else
         cout << "Pozycja Nie Znana" << endl;
 
@@ -2012,6 +2239,10 @@ void Game::console()
         state = GREETINGS;
     else if (command == "gotoLast")
         this->backgroundY = -300;
+    else if (command == "animacja")
+        state = ANIMACJA;
+    else if (command == "wyniki")
+        state = WYNIKI;
     else{
         cout << "Zla komenda sprobuj jeszcze raz...";
         goto komenda;
@@ -2035,3 +2266,4 @@ void Game::optionsReset(){
     this->iloscZyc = 4;
     //this->zycia = false;
 }
+//Koniec Pliku
