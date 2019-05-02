@@ -1,3 +1,6 @@
+1.4.4.0
+-Add Loading fun texts :)
+
 1.4.3.0
 -Add Loading Screen
 -Modify Game points

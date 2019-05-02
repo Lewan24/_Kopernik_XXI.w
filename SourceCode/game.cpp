@@ -337,20 +337,45 @@ void Game::loading(){
 /////////////////////////////////////////////////////////////////////////////
 
     sf::Text loading[3];
+    loading[0].setString(L"Ładowanie.");
+    loading[1].setString(L"Ładowanie..");
+    loading[2].setString(L"Ładowanie...");
 
     for(int i = 0; i < 3; i++){
         loading[i].setFont(font);
         loading[i].setFillColor(Color::White);
         loading[i].setCharacterSize(60);
-        loading[i].setPosition(szerokosc/2.5-loading[i].getGlobalBounds().width/2,250);
+        loading[i].setPosition(szerokosc/2-loading[i].getGlobalBounds().width/2,250);
         loading[i].setStyle(sf::Text::Bold);
     }
 
-    loading[0].setString(L"Ładowanie.");
-    loading[1].setString(L"Ładowanie..");
-    loading[2].setString(L"Ładowanie...");
+    short ile = 10;
+    sf::Text funtexts[ile];
+    bool niewiem[ile] = {false};
 
-    int a = 0;
+    funtexts[0].setString("Czyszczenie platform");
+    funtexts[1].setString(L"Pakowanie prezentów");
+    funtexts[2].setString(L"Ubieranie Mikołaja");
+    funtexts[3].setString(L"Czyszczenie ławek publiczności");
+    funtexts[4].setString("Malowanie nieba");
+    funtexts[5].setString("Komponowanie Muzyki");
+    funtexts[6].setString(L"Nagrywanie dźwięków");
+    funtexts[7].setString("Polerowanie Gwiazd");
+    funtexts[8].setString("Rysowanie chmur");
+    funtexts[9].setString(L"Ustawianie platform");
+
+    for(int i = 0; i < ile; i++){
+        funtexts[i].setFont(font);
+        funtexts[i].setFillColor(Color::White);
+        funtexts[i].setCharacterSize(45);
+        funtexts[i].setPosition(szerokosc/2-funtexts[i].getGlobalBounds().width/2,20);
+        funtexts[i].setStyle(sf::Text::Bold);
+    }
+
+    srand(time(NULL));
+    short tmp = 0;
+
+    short a = 0;
 
     sf::Clock zegar;
     sf::Time czas;
@@ -388,8 +413,17 @@ void Game::loading(){
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
-        if (czas.asSeconds() > 0.3){
+        if (czas.asSeconds() > 0.5){
             a++;
+            start:
+
+            tmp = rand()%ile;
+            if (niewiem[tmp] == true){
+                tmp = rand()%ile;
+                goto start;
+            }
+            else    niewiem[tmp] = true;
+
             zegar.restart();
         }
         czas = zegar.getElapsedTime();
@@ -400,6 +434,7 @@ void Game::loading(){
         window.clear();
 
         window.draw(loading[a]);
+        window.draw(funtexts[tmp]);
 
         window.setView(fixed);
         window.draw(cursor);
