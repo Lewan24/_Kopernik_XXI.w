@@ -86,7 +86,7 @@ Game::Game(void)
         return;
     }
 
-	state = MENU;
+	state = LOADING;
 }
 
 Game::~Game(void)
@@ -153,6 +153,10 @@ void Game::runGame(){
 
             case ANIMACJA:
                 animacja();
+                break;
+
+            case LOADING:
+                loading();
                 break;
 
             /* TODO:  opis gry
@@ -226,6 +230,11 @@ void Game::wyniki(){
                     state = CUT3;
                 else    state = MENU;
             }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
         }
@@ -261,18 +270,7 @@ void Game::animacja(){
 
     sf::Sprite cursor(cursorTexture);
 /////////////////////////////////////////////////////////////////////////////
-    sf::Texture bgTexture[howmany];
-
-    for(int i = 0; i < this->howmany; i++){
-        jakisstring[i] = std::string("Resources/Game/frames/frame")+intToStr(i+1)+".jpg";
-
-        if (!bgTexture[i].loadFromFile(jakisstring[i]))
-            ErrorMsg("Hmm... Brakuje textury! Sprawdz czy masz wszystkie w 'Resources/Game/frames/" + intToStr(i+1),"ERROR");
-
-        cout << std::string("Frame ") + intToStr(i+1) +"/"+intToStr(howmany) + " Loaded" << endl;
-    }
-    //cout << "Background Textures Loaded" << endl;
-
+    //sf::Texture bgTexture[howmany];
     sf::Sprite sBackground;
 
     sf::Clock zegar;
@@ -296,11 +294,17 @@ void Game::animacja(){
             if(event.type == Event::Closed)
                 state = END;
 
-            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space)
                 state = WYNIKI;
 
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
         }
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
@@ -314,6 +318,88 @@ void Game::animacja(){
         window.clear();
 
         window.draw(sBackground);
+
+        window.setView(fixed);
+        window.draw(cursor);
+        window.display();
+    }
+}
+
+void Game::loading(){
+    window.setMouseCursorVisible(false);
+
+    sf::View fixed = window.getView();
+    sf::Texture cursorTexture;
+    if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+        ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+    sf::Sprite cursor(cursorTexture);
+/////////////////////////////////////////////////////////////////////////////
+
+    sf::Text loading[3];
+
+    for(int i = 0; i < 3; i++){
+        loading[i].setFont(font);
+        loading[i].setFillColor(Color::White);
+        loading[i].setCharacterSize(60);
+        loading[i].setPosition(szerokosc/2.5-loading[i].getGlobalBounds().width/2,250);
+        loading[i].setStyle(sf::Text::Bold);
+    }
+
+    loading[0].setString(L"Ładowanie.");
+    loading[1].setString(L"Ładowanie..");
+    loading[2].setString(L"Ładowanie...");
+
+    int a = 0;
+
+    sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    short okrazenie = 0;
+    while(state == LOADING)
+    {
+        Vector2f mouse(Mouse::getPosition(window));
+        Event event;
+
+        while(window.pollEvent(event))
+        {
+            //Wciœniêcie ESC lub przycisk X
+            if(event.type == Event::Closed)
+                state = END;
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+        }
+        if (okrazenie < this->howmany){
+            this->jakisstring[okrazenie] = std::string("Resources/Game/frames/frame")+intToStr(okrazenie+1)+".jpg";
+
+            if (!this->bgTexture[okrazenie].loadFromFile(this->jakisstring[okrazenie]))
+                ErrorMsg("Hmm... Brakuje textury! Sprawdz czy masz wszystkie w 'Resources/Game/frames/" + intToStr(okrazenie+1),"ERROR");
+
+            cout << std::string("Frame ") + intToStr(okrazenie+1) +"/"+intToStr(this->howmany) + " Loaded" << endl;
+        }
+
+        okrazenie++;
+
+        if (okrazenie >= howmany)
+                state = MENU;
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        if (czas.asSeconds() > 0.3){
+            a++;
+            zegar.restart();
+        }
+        czas = zegar.getElapsedTime();
+
+        if (a >= 3)
+            a = 0;
+
+        window.clear();
+
+        window.draw(loading[a]);
 
         window.setView(fixed);
         window.draw(cursor);
@@ -373,6 +459,10 @@ void Game::greetings()
 
 	while(state == GREETINGS)
 	{
+	    if (this->dzwiek == true)
+            endp.setVolume(15.f);
+	    else    endp.setVolume(0.f);
+
 		Vector2f mouse(Mouse::getPosition(window));
 		Event event;
 
@@ -392,6 +482,12 @@ void Game::greetings()
 			}
 			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
 		}
 
         //std::cout << Background.getPosition().y << std::endl;
@@ -508,6 +604,11 @@ void Game::menu()
             else if(tekst[4].getGlobalBounds().contains(mouse) &&
                 event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
             {
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
                 if (this->dzwiek == true)
                     this->dzwiek = false;
                 else this->dzwiek = true;
@@ -957,6 +1058,12 @@ void Game::cut1(){
 
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
 		}
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
@@ -1084,6 +1191,12 @@ void Game::cut4(){
             }
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
 		}
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
@@ -1217,6 +1330,12 @@ void Game::cut3(){
             }
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
 		}
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
@@ -1355,6 +1474,12 @@ void Game::cut2(){
             }
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
 		}
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
@@ -1761,7 +1886,7 @@ void Game::startgame()
             this->playmusic1 = false;
             state = CUT2;
         }
-        else if (sBackground.getPosition().y > 30){
+        else if (sBackground.getPosition().y > 100){
             soundtrack2.stop();
             state = ANIMACJA;
         }
@@ -1837,8 +1962,10 @@ void Game::startgame()
                 x = x + sPers.getScale().x + 400;
 
                 if(this->przej == true){
-                    if(this->dzwiek == true)
+                    if(this->dzwiek == true){
                         przejscie.play();
+                        this->punkty += (20*this->mnoznikpkt);
+                    }
 
                     this->przej = false;
                 }
@@ -1857,8 +1984,10 @@ void Game::startgame()
                 x = 200;
 
                 if(this->przej == true){
-                    if(this->dzwiek == true)
+                    if(this->dzwiek == true){
                         przejscie.play();
+                        this->punkty += (20*this->mnoznikpkt);
+                    }
 
                     this->przej = false;
                 }
@@ -2130,6 +2259,12 @@ void Game::gameOver()
 			}
 			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
 		}
 		for(int i=0;i<ile;i++)
 			if(tekst[i].getGlobalBounds().contains(mouse))
