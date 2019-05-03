@@ -38,7 +38,7 @@
 using namespace sf;
 using namespace std;
 
-short wysokosc = 600, szerokosc = 800;
+short szerokosc = 800, wysokosc = 600;
 
 sf::Vector2i screenDimensions(szerokosc,wysokosc);
 sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), L"Kopernik i Płaska Ziemia",Style::Close);
@@ -278,11 +278,19 @@ void Game::animacja(){
 
     int a = 0;
 
+
+    sf::Text skip;
+    skip.setString(L"Spacja, aby kontynuować...");
+    skip.setCharacterSize(50);
+    skip.setFillColor(Color::White);
+    skip.setFont(font);
+    skip.setPosition(szerokosc/2-skip.getGlobalBounds().width/2,wysokosc-skip.getCharacterSize()-5);
+
     while(state == ANIMACJA)
     {
         sBackground.setTexture(bgTexture[a]);
 
-        if (a == howmany)
+        if (a >= howmany-1)
             a = 0;
 
         Vector2f mouse(Mouse::getPosition(window));
@@ -309,7 +317,7 @@ void Game::animacja(){
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
-        if (czas.asMilliseconds() > 50){
+        if (czas.asMilliseconds() > 80){
             a++;
             zegar.restart();
         }
@@ -318,6 +326,7 @@ void Game::animacja(){
         window.clear();
 
         window.draw(sBackground);
+        window.draw(skip);
 
         window.setView(fixed);
         window.draw(cursor);
@@ -398,7 +407,7 @@ void Game::loading(){
                 console();
         }
         if (okrazenie < this->howmany){
-            this->jakisstring[okrazenie] = std::string("Resources/Game/frames/frame")+intToStr(okrazenie+1)+".jpg";
+            this->jakisstring[okrazenie] = std::string("Resources/Game/frames/frame")+intToStr(okrazenie+1)+".png";
 
             if (!this->bgTexture[okrazenie].loadFromFile(this->jakisstring[okrazenie]))
                 ErrorMsg("Hmm... Brakuje textury! Sprawdz czy masz wszystkie w 'Resources/Game/frames/" + intToStr(okrazenie+1),"ERROR");

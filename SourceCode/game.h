@@ -44,9 +44,9 @@ public:
 
     short ile_linii = 21;
 
-    int howmany = 37; // ilosc klatek
-    sf::Texture bgTexture[37];
-    sf::String jakisstring[37];
+    int howmany = 23; // ilosc klatek
+    sf::Texture bgTexture[23];
+    sf::String jakisstring[23];
 
 	void runGame();
 	void gameUpdate(bool);
