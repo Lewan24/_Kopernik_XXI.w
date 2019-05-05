@@ -159,9 +159,22 @@ void Game::runGame(){
                 loading();
                 break;
 
-            /* TODO:  opis gry
-            opis Kopernika i jego osiagniec // w dodatkach bedzie jakas dluzsza wersja troche o nim opowiadajaca
-            */
+            case INFO:
+                kop_info();
+                break;
+
+            case KOP1:
+                kop1();
+                break;
+
+            case KOP2:
+                kop2();
+                break;
+
+            case KOP3:
+                kop3();
+                break;
+
             default: break;
 		}
 	}
@@ -211,6 +224,13 @@ void Game::wyniki(){
     tekst[3].setPosition(szerokosc/3-tekst[3].getGlobalBounds().width/2,280);
     tekst[3].setCharacterSize(65);
 
+    sf::Text strzalka;
+    strzalka.setFont(font);
+    strzalka.setCharacterSize(tekst[0].getCharacterSize());
+    strzalka.setStyle(tekst[0].getStyle());
+    strzalka.setString("->");
+    strzalka.setFillColor(Color::Red);
+
     while(state == WYNIKI)
     {
         Vector2f mouse(Mouse::getPosition(window));
@@ -238,9 +258,13 @@ void Game::wyniki(){
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
         }
+        strzalka.setPosition(-400,0);
+
         //for(int i=0;i<ile-1;i++)
-            if(tekst[0].getGlobalBounds().contains(mouse))
-                tekst[0].setFillColor(Color::Cyan); // when you will move your mouse on button
+            if(tekst[0].getGlobalBounds().contains(mouse)){
+                    strzalka.setPosition(tekst[0].getPosition().x-strzalka.getGlobalBounds().width-4, tekst[0].getPosition().y);
+                    tekst[0].setFillColor(Color::Cyan); // when you will move your mouse on button
+            }
             else tekst[0].setFillColor(Color::White);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
@@ -251,6 +275,8 @@ void Game::wyniki(){
 
         for(int i=0;i<ile;i++)
             window.draw(tekst[i]);
+
+        window.draw(strzalka);
 
         window.setView(fixed);
         window.draw(cursor);
@@ -451,8 +477,7 @@ void Game::loading(){
     }
 }
 
-void Game::greetings()
-{
+void Game::greetings(){
     // state = GREETINGS
 
     Text title(L"Kopernik i Płaska Ziemia",font,40);
@@ -562,8 +587,7 @@ void Game::greetings()
 	}
 }
 
-void Game::menu()
-{
+void Game::menu(){
     this->backgroundY = -4080;
     this->przej = true;
     this->playmusic1 = true;
@@ -607,6 +631,20 @@ void Game::menu()
     tekst[4].setPosition(szerokosc-tekst[4].getGlobalBounds().width-120,wysokosc-tekst[4].getGlobalBounds().height-36);
     tekst[5].setPosition(szerokosc-tekst[5].getGlobalBounds().width,wysokosc-tekst[5].getGlobalBounds().height-35);
     tekst[5].setCharacterSize(60);
+
+    sf::Text strzalka;
+    strzalka.setFont(font);
+    strzalka.setCharacterSize(tekst[0].getCharacterSize());
+    strzalka.setStyle(tekst[0].getStyle());
+    strzalka.setString("->");
+    strzalka.setFillColor(Color::Red);
+
+    sf::Text strzalka2;
+    strzalka2.setFont(font);
+    strzalka2.setCharacterSize(tekst[0].getCharacterSize());
+    strzalka2.setStyle(tekst[0].getStyle());
+    strzalka2.setString("<-");
+    strzalka2.setFillColor(Color::Red);
 
     while(state == MENU)
     {
@@ -660,10 +698,20 @@ void Game::menu()
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
         }
-        for(int i=0;i<ile-1;i++)
-            if(tekst[i].getGlobalBounds().contains(mouse))
+        strzalka.setPosition(-400,0);
+        strzalka2.setPosition(-400,0);
+
+		for(int i=0;i<ile;i++)
+			if(tekst[i].getGlobalBounds().contains(mouse) && !tekst[5].getGlobalBounds().contains(mouse) && !tekst[3].getGlobalBounds().contains(mouse)){
+                strzalka.setPosition(tekst[i].getPosition().x-strzalka.getGlobalBounds().width-4, tekst[i].getPosition().y);
                 tekst[i].setFillColor(Color::Cyan); // when you will move your mouse on button
-            else tekst[i].setFillColor(Color::White);
+			}
+			else if (tekst[3].getGlobalBounds().contains(mouse)) {
+                strzalka2.setPosition(tekst[3].getPosition().x+tekst[3].getGlobalBounds().width+4, tekst[3].getPosition().y);
+                tekst[3].setFillColor(Color::Cyan);
+			}
+            else
+                tekst[i].setFillColor(Color::White);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
@@ -673,14 +721,16 @@ void Game::menu()
         for(int i=0;i<ile;i++)
             window.draw(tekst[i]);
 
+        window.draw(strzalka);
+        window.draw(strzalka2);
+
         window.setView(fixed);
         window.draw(cursor);
         window.display();
     }
 }
 
-void Game::hints()
-{
+void Game::hints(){
     // state = HINTS
 
 	sf::Text title(L"Kopernik i Płaska Ziemia",font,30);
@@ -757,6 +807,13 @@ void Game::hints()
     //sf::Text skip(Skip,font,20);
     //skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,600);
 
+    sf::Text strzalka;
+    strzalka.setFont(font);
+    strzalka.setCharacterSize(wartoscimenu[0].getCharacterSize());
+    strzalka.setStyle(wartoscimenu[0].getStyle());
+    strzalka.setString("->");
+    strzalka.setFillColor(Color::Red);
+
 	while(state == HINTS)
 	{
 		Vector2f mouse(Mouse::getPosition(window));
@@ -775,10 +832,15 @@ void Game::hints()
             if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
 		}
+		strzalka.setPosition(-400,0);
+
         for(int i=0;i<menu;i++)
-			if(wartoscimenu[i].getGlobalBounds().contains(mouse))
-				wartoscimenu[i].setFillColor(Color::Cyan); // when you will move your mouse on button
-			else wartoscimenu[i].setFillColor(Color::White);
+			if(wartoscimenu[i].getGlobalBounds().contains(mouse)){
+                    strzalka.setPosition(wartoscimenu[i].getPosition().x-strzalka.getGlobalBounds().width-4, wartoscimenu[i].getPosition().y);
+                    wartoscimenu[i].setFillColor(Color::Cyan); // when you will move your mouse on button
+			}
+			else
+                wartoscimenu[i].setFillColor(Color::White);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
 
@@ -804,15 +866,480 @@ void Game::hints()
         for (int i = 0; i < cos+1; i++)
             window.draw(tekst[i]);
 
+        window.draw(strzalka);
+
         window.setView(fixed);
         window.draw(cursor);
 		window.display();
 	}
 }
 
+void Game::kop1(){
+    // state = KOP1
 
-void Game::options()
-{
+    sf::Text title(L"Kopernik i Płaska Ziemia",font,20);
+	title.setStyle(Text::Bold);
+
+
+    title.setPosition(5,575);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+//////////////////////////////////////////////////////////////////////////////
+    string linia;
+    int ile=0;
+    short ilosc_linii = 3; // ilosc linii - 1
+    sf::String str[ilosc_linii+1];
+
+    fstream plik;
+    plik.open("Resources/Game/Kopernik/kop1.data", ios::in);
+
+    if(plik.good()==false)
+        ErrorMsg("File not found, Check: 'Resources/Game/Kopernik/kop1.data'","ERROR");
+
+    std::basic_string < sf::Uint32 > tmp[ilosc_linii+1];
+    while (getline(plik, linia))
+    {
+        //str[ile] = linia;
+        sf::Utf8::toUtf32( linia.begin(), linia.end(), std::back_inserter( tmp[ile] ) );
+        str[ile] = tmp[ile];
+        ile++;
+    }
+    plik.close();
+
+	sf::Text tekst[ile];
+
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(38);              // Main Menu, texts and buttons
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+		tekst[i].setStyle(Text::Bold);
+	}
+
+	sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    int cos = 0;
+
+    sf::Text skip(L"Space, aby kontynuować...",font,20);
+    skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+	while(state == KOP1)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed){
+                state = END;
+			}
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
+                state = INFO;
+            }
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
+                state = MENU;
+            }
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
+		}
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        //std::cout << cos << endl;
+
+        if (czas.asSeconds() > 0.25){
+            cos++;
+            if (cos > ilosc_linii)
+                cos = cos-1;
+
+            zegar.restart();
+        }
+        czas=zegar.getElapsedTime();
+
+		window.clear();
+
+		window.draw(title);
+		window.draw(skip);
+
+        for (int i = 0; i < cos+1; i++)
+            window.draw(tekst[i]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
+}
+
+void Game::kop2(){
+    // state = KOP2
+
+    sf::Text title(L"Kopernik i Płaska Ziemia",font,20);
+	title.setStyle(Text::Bold);
+
+
+    title.setPosition(5,575);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+//////////////////////////////////////////////////////////////////////////////
+    string linia;
+    int ile=0;
+    short ilosc_linii = 6; // ilosc linii - 1
+    sf::String str[ilosc_linii+1];
+
+    fstream plik;
+    plik.open("Resources/Game/Kopernik/kop2.data", ios::in);
+
+    if(plik.good()==false)
+        ErrorMsg("File not found, Check: 'Resources/Game/Kopernik/kop2.data'","ERROR");
+
+    std::basic_string < sf::Uint32 > tmp[ilosc_linii+1];
+    while (getline(plik, linia))
+    {
+        //str[ile] = linia;
+        sf::Utf8::toUtf32( linia.begin(), linia.end(), std::back_inserter( tmp[ile] ) );
+        str[ile] = tmp[ile];
+        ile++;
+    }
+    plik.close();
+
+	sf::Text tekst[ile];
+
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(38);              // Main Menu, texts and buttons
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+		tekst[i].setStyle(Text::Bold);
+	}
+
+	sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    int cos = 0;
+
+    sf::Text skip(L"Space, aby kontynuować...",font,20);
+    skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,550);
+
+	while(state == KOP2)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed){
+                state = END;
+			}
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
+                state = INFO;
+            }
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
+                state = MENU;
+            }
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
+		}
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        //std::cout << cos << endl;
+
+        if (czas.asSeconds() > 0.25){
+            cos++;
+            if (cos > ilosc_linii)
+                cos = cos-1;
+
+            zegar.restart();
+        }
+        czas=zegar.getElapsedTime();
+
+		window.clear();
+
+		window.draw(title);
+		window.draw(skip);
+
+        for (int i = 0; i < cos+1; i++)
+            window.draw(tekst[i]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
+}
+
+void Game::kop3(){
+    // state = KOP3
+
+    sf::Text title(L"Kopernik i Płaska Ziemia",font,20);
+	title.setStyle(Text::Bold);
+
+
+    title.setPosition(5,575);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+	sf::View fixed = window.getView();
+	sf::Texture cursorTexture;
+	if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+		ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+	sf::Sprite cursor(cursorTexture);
+//////////////////////////////////////////////////////////////////////////////
+    string linia;
+    int ile=0;
+    short ilosc_linii = 15; // ilosc linii - 1
+    sf::String str[ilosc_linii+1];
+
+    fstream plik;
+    plik.open("Resources/Game/Kopernik/kop3.data", ios::in);
+
+    if(plik.good()==false)
+        ErrorMsg("File not found, Check: 'Resources/Game/Kopernik/kop3.data'","ERROR");
+
+    std::basic_string < sf::Uint32 > tmp[ilosc_linii+1];
+    while (getline(plik, linia))
+    {
+        //str[ile] = linia;
+        sf::Utf8::toUtf32( linia.begin(), linia.end(), std::back_inserter( tmp[ile] ) );
+        str[ile] = tmp[ile];
+        ile++;
+    }
+    plik.close();
+
+	sf::Text tekst[ile];
+
+	for(int i=0;i<ile;i++)
+	{
+		tekst[i].setFont(font);
+		tekst[i].setCharacterSize(38);              // Main Menu, texts and buttons
+
+		tekst[i].setString(str[i]);
+		tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,i*35);
+		tekst[i].setStyle(Text::Bold);
+	}
+
+	sf::Clock zegar;
+    sf::Time czas;
+
+    zegar.restart();
+
+    int cos = 0;
+
+    sf::Text skip(L"Space, aby kontynuować...",font,20);
+    skip.setPosition(szerokosc-skip.getGlobalBounds().width-3,560);
+
+	while(state == KOP3)
+	{
+		Vector2f mouse(Mouse::getPosition(window));
+		Event event;
+
+		while(window.pollEvent(event))
+		{
+			//Wciœniêcie ESC lub przycisk X
+			if(event.type == Event::Closed){
+                state = END;
+			}
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
+                state = INFO;
+            }
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Escape){
+                state = MENU;
+            }
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
+		}
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        //std::cout << cos << endl;
+
+        if (czas.asSeconds() > 0.25){
+            cos++;
+            if (cos > ilosc_linii)
+                cos = cos-1;
+
+            zegar.restart();
+        }
+        czas=zegar.getElapsedTime();
+
+		window.clear();
+
+		window.draw(title);
+		window.draw(skip);
+
+        for (int i = 0; i < cos+1; i++)
+            window.draw(tekst[i]);
+
+        window.setView(fixed);
+        window.draw(cursor);
+		window.display();
+	}
+}
+
+void Game::kop_info(){
+    // state = INFO
+
+    Text title(L"Kopernik i Płaska Ziemia",font,80);
+    title.setStyle(Text::Bold);
+
+    title.setPosition(szerokosc/2-title.getGlobalBounds().width/2,20);
+//////////////////////////////////////////////////////////////////////////////
+    window.setMouseCursorVisible(false);
+
+    sf::View fixed = window.getView();
+    sf::Texture cursorTexture;
+    if(!cursorTexture.loadFromFile("Resources/Textures/cursor.png"))// Custon Cursor
+        ErrorMsg("Cursor not found! Check: 'Resources/Textures/cursor.png'","ERROR");
+
+    sf::Sprite cursor(cursorTexture);
+/////////////////////////////////////////////////////////////////////////////
+    const int ile = 3;
+
+    Text tekst[ile];
+
+    sf::String str[] = {"Heliocentryzm", "O obrotach sfer niebieskich", L"Miejsca pobytu Mikołaja"};
+    for(int i=0;i<ile;i++)
+    {
+        tekst[i].setFont(font);
+        tekst[i].setCharacterSize(62);              // Main Menu, texts and buttons
+
+        tekst[i].setString(str[i]);
+        tekst[i].setPosition(szerokosc/2-tekst[i].getGlobalBounds().width/2,250+i*75);
+    }
+///////////////////////////////////////////////////////////////////////////////////
+
+    sf::Text wyjscie;
+    wyjscie.setFont(font);
+    wyjscie.setCharacterSize(48);
+    wyjscie.setString(L"Escape, aby wrócić...");
+    wyjscie.setPosition(20,wysokosc-wyjscie.getGlobalBounds().height-20);
+
+    sf::Text strzalka;
+    strzalka.setFont(font);
+    strzalka.setCharacterSize(tekst[0].getCharacterSize());
+    strzalka.setStyle(tekst[0].getStyle());
+    strzalka.setString("->");
+    strzalka.setFillColor(Color::Red);
+
+    while(state == INFO)
+    {
+        Vector2f mouse(Mouse::getPosition(window));
+        Event event;
+
+        while(window.pollEvent(event))
+        {
+            //Wciœniêcie ESC lub przycisk X
+            if(event.type == Event::Closed)
+                state = END;
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+                state = MENUOPTIONS;
+
+            //klikniêcie EXIT
+            else if(tekst[0].getGlobalBounds().contains(mouse) &&
+                event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+            {
+                state = KOP1;
+            }
+            else if(tekst[1].getGlobalBounds().contains(mouse) &&
+                event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+            {
+                state = KOP2;
+            }
+            else if(tekst[2].getGlobalBounds().contains(mouse) &&
+                event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+            {
+                state = KOP3;
+            }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::M){
+                if (this->dzwiek == true)
+                    this->dzwiek = false;
+                else this->dzwiek = true;
+            }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
+                console();
+        }
+        strzalka.setPosition(-400,0);
+
+		for(int i=0;i<ile;i++)
+			if(tekst[i].getGlobalBounds().contains(mouse)){
+                    strzalka.setPosition(tekst[i].getPosition().x-strzalka.getGlobalBounds().width-4, tekst[i].getPosition().y);
+                    tekst[i].setFillColor(Color::Cyan); // when you will move your mouse on button
+			}
+			else
+                tekst[i].setFillColor(Color::White);
+
+        cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
+
+        window.clear();
+
+        window.draw(title);
+
+        for(int i=0;i<ile;i++)
+            window.draw(tekst[i]);
+
+        window.draw(wyjscie);
+
+        window.draw(strzalka);
+
+        window.setView(fixed);
+        window.draw(cursor);
+        window.display();
+    }
+}
+
+void Game::options(){
     // state = MENUOPTIONS
 
     Text title(L"Kopernik i Płaska Ziemia",font,40);
@@ -829,11 +1356,11 @@ void Game::options()
 
 	sf::Sprite cursor(cursorTexture);
 /////////////////////////////////////////////////////////////////////////////
-	const int ile = 4;
+	const int ile = 5;
 
 	Text tekst[ile];
 
-	sf::String str[] = {L"Poziom Trudności: ",L"Podziękowania","<--", "Zresetuj Opcje"};
+	sf::String str[] = {L"Poziom Trudności: ",L"Podziękowania","<--", "Zresetuj Opcje","Kopernik Info"};
 
 	for(int i=0;i<ile;i++)
 	{
@@ -912,6 +1439,16 @@ void Game::options()
             if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
                 state = MENU;
 			//klikniêcie EXIT
+			else if(tekst[4].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+			{
+				state = INFO;
+			}
+			else if(tekst[3].getGlobalBounds().contains(mouse) &&
+				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
+			{
+				optionsReset();
+			}
 			else if(tekst[2].getGlobalBounds().contains(mouse) &&
 				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
@@ -926,11 +1463,6 @@ void Game::options()
 				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
 			{
 				this->trudnosc++;
-			}
-			else if(tekst[3].getGlobalBounds().contains(mouse) &&
-				event.type == Event::MouseButtonReleased && event.mouseButton.button == Mouse::Left)
-			{
-				optionsReset();
 			}
 			if(event.type == Event::KeyPressed && event.key.code == Keyboard::Slash)
                 console();
@@ -1562,8 +2094,7 @@ template <typename T> string tostr(const T& t) {
    return os.str();
 }
 
-void Game::startgame()
-{
+void Game::startgame(){
     //TODO: Lektor do ciekawostek
 
     cout << "Updating Game..." << endl;
@@ -2123,8 +2654,6 @@ void Game::startgame()
         }
         czas=zegar.getElapsedTime();*/
 
-// TODO: Dodac kolejne planety do animacji
-
         if (isGift == false){ // gdy prezentu nie ma na mapie
             if (drawciek == true){ // jezeli wyswietlona ciekawostka
                 if (czas.asSeconds() > 4){ // po trzech sekundach
@@ -2202,8 +2731,7 @@ void Game::startgame()
     }
 }
 
-void Game::gameOver()
-{
+void Game::gameOver(){
     // state == GAMEOVER
     Text title(L"Kopernik i Płaska Ziemia",font,40);
 	title.setStyle(Text::Bold);
@@ -2272,6 +2800,13 @@ void Game::gameOver()
         over1.play();
     else over2.play();
 
+    sf::Text strzalka;
+    strzalka.setFont(font);
+    strzalka.setCharacterSize(tekst[0].getCharacterSize());
+    strzalka.setStyle(tekst[0].getStyle());
+    strzalka.setString("->");
+    strzalka.setFillColor(Color::Red);
+
 	while(state == GAMEOVER)
 	{
 		Vector2f mouse(Mouse::getPosition(window));
@@ -2310,9 +2845,13 @@ void Game::gameOver()
                 else this->dzwiek = true;
             }
 		}
+		strzalka.setPosition(-400,0);
+
 		for(int i=0;i<ile;i++)
-			if(tekst[i].getGlobalBounds().contains(mouse))
-				tekst[i].setFillColor(sf::Color::Cyan); // when you will move your mouse on button
+			if(tekst[i].getGlobalBounds().contains(mouse)){
+                strzalka.setPosition(tekst[i].getPosition().x-strzalka.getGlobalBounds().width-4,tekst[i].getPosition().y);
+                tekst[i].setFillColor(sf::Color::Cyan); // when you will move your mouse on button
+			}
 			else tekst[i].setFillColor(sf::Color::White);
 
         cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window))); // for custom cursor
@@ -2326,14 +2865,15 @@ void Game::gameOver()
 		for(int i=0;i<ile;i++)
 			window.draw(tekst[i]);
 
+        window.draw(strzalka);
+
         window.setView(fixed);
         window.draw(cursor);
 		window.display();
 	}
 }
 
-void Game::help()
-{
+void Game::help(){
     cout << "=================================================" << endl;
     cout << "                  Komendy: " << endl << endl;
 
@@ -2356,8 +2896,7 @@ void Game::help()
     // cout << "" << endl;
 }
 
-void Game::console()
-{
+void Game::console(){
     string command;
 
     komenda:

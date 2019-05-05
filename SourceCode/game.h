@@ -59,7 +59,8 @@ protected:
 	enum GameState {MENU,GAMESTART,END,GAMEOVER,
                     CUT1,CUT2,CUT3,CUT4,
                     MENUOPTIONS,HINTS,GREETINGS,
-                    WYNIKI,ANIMACJA,LOADING};
+                    WYNIKI,ANIMACJA,LOADING,INFO,
+                    KOP1, KOP2, KOP3};
 	GameState state;
 
 private:
@@ -96,6 +97,10 @@ private:
 	void animacja();
 	void wyniki();
 	void loading();
+	void kop_info();
+	void kop1();
+	void kop2();
+	void kop3();
 };
 
 #endif // game_h
