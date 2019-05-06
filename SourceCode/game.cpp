@@ -182,7 +182,7 @@ void Game::runGame(){
 
 void Game::wyniki(){
     //state = WYNIKI
-//TODO: Znalezc dzwieki jakies do wynikow
+
     Text title(L"Kopernik i Płaska Ziemia",font,80);
     title.setStyle(Text::Bold);
 
@@ -2095,8 +2095,6 @@ template <typename T> string tostr(const T& t) {
 }
 
 void Game::startgame(){
-    //TODO: Lektor do ciekawostek
-
     cout << "Updating Game..." << endl;
 
     gameUpdate(zycia);
